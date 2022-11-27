@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "9USyoah/K6Uwv+KK68nYD/50IsdH6iRSD4tNfyrImRRleS+oi3gkeZ/JLH6tZdmeL+TN0tpW4XyVCXKUBprl0A==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\danton\\Source\\Repos\\Katas\\CQRS\\OnlineShop\\OnlineShop.Shared.Ports\\OnlineShop.Shared.Ports.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\danton\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\3.1.3\\microsoft.extensions.dependencyinjection.3.1.3.nupkg.sha512",
+    "C:\\Users\\danton\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\3.1.3\\microsoft.extensions.dependencyinjection.abstractions.3.1.3.nupkg.sha512"
+  ],
+  "logs": []
+}
