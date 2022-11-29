@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using OnlineShop.Secondary.Ports.DataContracts;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Tests.Factories
 {
     public static class ProductFactory
     {
         public static List<Product> Create()
-            => new List<Product>
-               {
+            => new()
+            {
                    new Product
                    {
                        Name = "Product1",
@@ -41,8 +41,8 @@ namespace OnlineShop.Tests.Factories
                };
 
         public static Product CreateUpsert()
-            => new Product
-               {
+            => new()
+            {
                    Name = "NewProduct",
                    Code = "NewProductCode",
                    Price = (decimal) 1000.12,
@@ -50,18 +50,18 @@ namespace OnlineShop.Tests.Factories
                    CategoryId = new Guid("7b67fc8d-d0c4-4f02-88e7-fb3f9fd3d427")
                };
 
-        public static pp.UpsertProduct CreateUpsertModel()
-            => new pp.UpsertProduct
-               {
+        public static primaryPorts.UpsertProduct CreateUpsertModel()
+            => new()
+            {
                    Name = "NewProduct",
                    Price = (decimal) 1000.12,
                    AvailableQuantity = 300
                };
 
-        public static List<pp.UpsertProduct> CreateUpsertModels()
-            => new List<pp.UpsertProduct>
-               {
-                   new pp.UpsertProduct
+        public static List<primaryPorts.UpsertProduct> CreateUpsertModels()
+            => new()
+            {
+                   new primaryPorts.UpsertProduct
                    {
                        Name = "Product1",
                        Price = 10,
@@ -69,14 +69,14 @@ namespace OnlineShop.Tests.Factories
                        CategoryId = CategoryFactory.Create()[0].ToEntity().Id.GetValueOrDefault()
                    },
 
-                   new pp.UpsertProduct
+                   new primaryPorts.UpsertProduct
                    {
                        Name = "Product2",
                        Price = 23,
                        AvailableQuantity = 11,
                        CategoryId = CategoryFactory.Create()[1].ToEntity().Id.GetValueOrDefault()
                    },
-                   new pp.UpsertProduct
+                   new primaryPorts.UpsertProduct
                    {
                        Name = "Product3",
                        Price = 30,

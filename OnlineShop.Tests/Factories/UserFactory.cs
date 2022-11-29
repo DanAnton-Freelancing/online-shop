@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using sp = OnlineShop.Secondary.Ports.DataContracts;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Tests.Factories
 {
@@ -15,45 +15,45 @@ namespace OnlineShop.Tests.Factories
                "QCA9HCvTKZhBBWsB5rWC3uSqLL6PfLAqLH6gNzeNRXfkpPscpm9CYBSxyshDmxsdm" +
                "UBLdsZ3Wfk2KsDAL6C9tNdtmLby6f5gWcf8PKY8SjKwGXua9XMbFLsfn4t3HHF67rANxuYybac";
 
-        public static sp.User ToEntity(this sp.User user)
+        public static secondaryPorts.User ToEntity(this secondaryPorts.User user)
         {
             user.Id = Guid.NewGuid();
             return user;
         }
 
-        public static sp.User Create()
-            => new sp.User
+        public static secondaryPorts.User Create()
+            => new()
             {
                 Email = "user1@example.com",
                 FirstName = "user1",
                 LastName = "user1",
-                UserCart = new sp.UserCart(),
+                UserCart = new secondaryPorts.UserCart(),
                 Password = "Centric1!",
                 Username = "user1"
             };
 
-        public static sp.UserCart CreateUserCart()
-            => new sp.UserCart
+        public static secondaryPorts.UserCart CreateUserCart()
+            => new()
             {
-                CartItems = new List<sp.CartItem>()
+                CartItems = new List<secondaryPorts.CartItem>()
             };
 
-        public static pp.UserCart CreateUserDetails()
-            => new pp.UserCart
+        public static primaryPorts.UserCart CreateUserDetails()
+            => new()
             {
                 Id = Guid.NewGuid(),
-                CartItems = new List<pp.CartItem>(),
+                CartItems = new List<primaryPorts.CartItem>(),
                 Total = 0
             };
 
-        public static void ToEntity(this pp.UserCart userCart, Guid id)
+        public static void ToEntity(this primaryPorts.UserCart userCart, Guid id)
             => userCart.Id = id;
 
-        public static void ToEntity(this sp.UserCart userCart)
+        public static void ToEntity(this secondaryPorts.UserCart userCart)
             => userCart.Id = Guid.NewGuid();
 
-        public static pp.RegisterUser CreateRegisterUser()
-            => new pp.RegisterUser
+        public static primaryPorts.RegisterUser CreateRegisterUser()
+            => new()
             {
                 Email = "user1@example.com",
                 FirstName = "user1",
@@ -62,14 +62,14 @@ namespace OnlineShop.Tests.Factories
                 Username = "user1"
             };
 
-        public static pp.LoginUser CreateLoginUser()
-            => new pp.LoginUser
+        public static primaryPorts.LoginUser CreateLoginUser()
+            => new()
             {
                 Password = "Centric1!",
                 Username = "user1"
             };
 
-        public static void AddSalt(this sp.User user)
+        public static void AddSalt(this secondaryPorts.User user)
         {
             var salt = new byte[128 / 8];
             using (var rng = RandomNumberGenerator.Create())
@@ -80,7 +80,7 @@ namespace OnlineShop.Tests.Factories
             user.Salt = salt;
         }
 
-        public static void AddPasswordHash(this sp.User user)
+        public static void AddPasswordHash(this secondaryPorts.User user)
             => user.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(user.Password,
                                                                            user.Salt,
                                                                            KeyDerivationPrf.HMACSHA1,

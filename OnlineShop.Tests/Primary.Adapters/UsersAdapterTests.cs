@@ -11,15 +11,15 @@ using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Tests.Primary.Adapters
 {
     [TestClass]
     public class UsersAdapterTests : BaseTests
     {
-        private pp.LoginUser _loginUser;
-        private pp.RegisterUser _registerUser;
+        private primaryPorts.LoginUser _loginUser;
+        private primaryPorts.RegisterUser _registerUser;
         private UsersAdapter _usersAdapter;
 
         [TestInitialize]
@@ -57,7 +57,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _usersAdapter.RegisterAsync(_registerUser, CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.User>.IsCorrectError(HttpStatusCode.Conflict,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.Conflict,
                                                                        "[AlreadyExist]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));
@@ -93,7 +93,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.User>.IsCorrectError(HttpStatusCode.NotFound,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
                                                                        "[NotFound]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));
@@ -112,7 +112,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.User>.IsCorrectError(HttpStatusCode.NotFound,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
                                                                        "[NotFound]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));

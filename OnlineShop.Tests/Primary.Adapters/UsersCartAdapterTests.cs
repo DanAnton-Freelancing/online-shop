@@ -11,17 +11,17 @@ using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
-using sp = OnlineShop.Secondary.Ports.DataContracts;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Tests.Primary.Adapters
 {
     [TestClass]
     public class UsersCartAdapterTests : BaseTests
     {
-        private sp.UserCart _userCart;
+        private secondaryPorts.UserCart _userCart;
         private UserCartAdapter _userCartAdapter;
-        private pp.UserCart _userCartModel;
+        private primaryPorts.UserCart _userCartModel;
 
         [TestInitialize]
         public override void Initialize()
@@ -51,7 +51,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _userCartAdapter.GetWithDetailsAsync(_userCart.Id.GetValueOrDefault(), CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.UserCart>.AreEntriesEqual(_userCartModel,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserCart>.AreEntriesEqual(_userCartModel,
                                                                             actualResult.Data));
         }
 
@@ -72,12 +72,12 @@ namespace OnlineShop.Tests.Primary.Adapters
         {
             //Arrange
             MediatorMock.Setup(m => m.Send(It.IsAny<IGetUserCartQuery>(),CancellationToken.None))
-                        .ReturnsAsync(Result.Error<sp.UserCart>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
+                        .ReturnsAsync(Result.Error<secondaryPorts.UserCart>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
             //Act
             var actualResult = await _userCartAdapter.GetWithDetailsAsync(Guid.NewGuid(), CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.User>.IsCorrectError(HttpStatusCode.NotFound,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
                                                                        "[NotFound]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));
@@ -121,7 +121,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCart.Id.GetValueOrDefault(), CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.User>.IsCorrectError(HttpStatusCode.BadRequest,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.BadRequest,
                                                                        "[InvalidProductId]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));
@@ -138,7 +138,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCart.Id.GetValueOrDefault(), CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.User>.IsCorrectError(HttpStatusCode.BadRequest,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.BadRequest,
                                                                        "[InvalidQuantity]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));
@@ -151,7 +151,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _userCartAdapter.AddItemAsync(null, _userCart.Id.GetValueOrDefault(),CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.User>.IsCorrectError(HttpStatusCode.BadRequest,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.BadRequest,
                                                                        "[InvalidInput]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));
@@ -186,7 +186,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _userCartAdapter.RemoveItemAsync(cartItemId, CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.CartItem>.IsCorrectError(HttpStatusCode.NotFound,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.CartItem>.IsCorrectError(HttpStatusCode.NotFound,
                                                                        "[NotFound]",
                                                                        actualResult.HttpStatusCode,
                                                                        actualResult.ErrorMessage));
@@ -217,7 +217,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var actualResult = await _userCartAdapter.UpdateItemQuantityAsync(cartItemId, quantity, CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.CartItem>.IsCorrectError(HttpStatusCode.BadRequest,
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.CartItem>.IsCorrectError(HttpStatusCode.BadRequest,
                                                                            "[InvalidQuantity]",
                                                                            actualResult.HttpStatusCode,
                                                                            actualResult.ErrorMessage));

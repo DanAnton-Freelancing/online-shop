@@ -50,7 +50,7 @@ namespace OnlineShop.Api
                                   });
             services.AddSecondaryAdapters(appSettings.ConnectionString);
             services.AddPrimaryAdapters(appSettings.Secret);
-            services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddSwagger();
         }
 

@@ -27,21 +27,21 @@ namespace OnlineShop.Shared.Ports.DataContracts
         }
 
         public HttpStatusCode HttpStatusCode { get; set; }
-        public List<Message> Messages { get; set; } = new List<Message>();
+        public List<Message> Messages { get; set; } = new();
         public bool HasErrors => Messages.Any(m => m.MessageType >= MessageType.Error);
         public bool Success => !HasErrors;
         public string ErrorMessage => Messages?.FirstOrDefault(m => m.MessageType >= MessageType.Error)?.ResourceKey;
 
-        public static Result Ok() => new Result(HttpStatusCode.OK);
+        public static Result Ok() => new(HttpStatusCode.OK);
 
-        public static Result Ok(HttpStatusCode code) => new Result(code);
+        public static Result Ok(HttpStatusCode code) => new(code);
 
-        public static Result<T> Ok<T>(T data) => new Result<T>(HttpStatusCode.OK)
+        public static Result<T> Ok<T>(T data) => new(HttpStatusCode.OK)
                                                  {
                                                      Data = data
                                                  };
 
-        public static Result<T> Ok<T>(T data, HttpStatusCode code) => new Result<T>(code)
+        public static Result<T> Ok<T>(T data, HttpStatusCode code) => new(code)
                                                                       {
                                                                           Data = data
                                                                       };

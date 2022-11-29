@@ -6,11 +6,9 @@ namespace OnlineShop.Api.Extensions
 {
     public static class ResultExtensions
     {
-        public static ObjectResult ToActionResult<T>(this Result<T> result)
-            => new ObjectResult(result) {StatusCode = (int) result.HttpStatusCode};
+        public static ObjectResult ToActionResult<T>(this Result<T> result) => new(result) {StatusCode = (int) result.HttpStatusCode};
 
-        public static ObjectResult ToActionResult(this Result result)
-            => new ObjectResult(result) {StatusCode = (int) result.HttpStatusCode};
+        public static ObjectResult ToActionResult(this Result result) => new(result) {StatusCode = (int) result.HttpStatusCode};
 
         public static Task<ObjectResult> ToAsyncActionResult<T>(this Task<Result<T>> task)
             => Task.FromResult(new ObjectResult(task.Result) {StatusCode = (int)task.Result.HttpStatusCode});

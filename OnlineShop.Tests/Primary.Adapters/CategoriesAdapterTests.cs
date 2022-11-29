@@ -11,17 +11,17 @@ using OnlineShop.Primary.Ports.OperationContracts.CQRS.Queries;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
-using sp = OnlineShop.Secondary.Ports.DataContracts;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Tests.Primary.Adapters
 {
     [TestClass]
     public class CategoriesAdapterTests : BaseTests
     {
-        private List<sp.Category> _categories;
+        private List<secondaryPorts.Category> _categories;
         private CategoriesAdapter _categoriesAdapter;
-        private sp.Category _firstCategory;
+        private secondaryPorts.Category _firstCategory;
 
         [TestInitialize]
         public override void Initialize()
@@ -43,7 +43,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var result = await _categoriesAdapter.GetAllAsync(CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.Category>.AreListsEqual(result.Data, _categories.MapToPrimary()));
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Category>.AreListsEqual(result.Data, _categories.MapToPrimary()));
         }
 
         [TestMethod]

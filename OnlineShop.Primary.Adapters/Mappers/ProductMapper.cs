@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using sp = OnlineShop.Secondary.Ports.DataContracts;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Adapters.Mappers
 {
     public static class ProductMapper
     {
-        private static readonly Random Random = new Random();
+        private static readonly Random Random = new();
 
-        public static List<pp.Product> MapToPrimary(this List<sp.Product> products)
+        public static List<primaryPorts.Product> MapToPrimary(this List<secondaryPorts.Product> products)
             => products.Select(l => l.MapToPrimary())
                        .ToList();
 
-        public static pp.Product MapToPrimary(this sp.Product product)
-            => new pp.Product
-               {
+        public static primaryPorts.Product MapToPrimary(this secondaryPorts.Product product)
+            => new()
+            {
                    Id = product.Id.GetValueOrDefault(),
                    Name = product.Name,
                    Code = product.Code,
@@ -26,22 +26,22 @@ namespace OnlineShop.Primary.Adapters.Mappers
                    CategoryId = product.CategoryId
                };
 
-        public static List<sp.Product> MapToSecondary(this IList<pp.UpsertProduct> products)
+        public static List<secondaryPorts.Product> MapToSecondary(this IList<primaryPorts.UpsertProduct> products)
             => products.Select(r => r.MapToUpsertSecondary())
                        .ToList();
 
-        public static sp.Product MapToSecondary(this pp.UpsertProduct upsertProduct)
-            => new sp.Product
-               {
+        public static secondaryPorts.Product MapToSecondary(this primaryPorts.UpsertProduct upsertProduct)
+            => new()
+            {
                    Name = upsertProduct.Name,
                    Price = upsertProduct.Price,
                    AvailableQuantity = upsertProduct.AvailableQuantity,
                    CategoryId = upsertProduct.CategoryId
                };
 
-        private static sp.Product MapToUpsertSecondary(this pp.UpsertProduct upsertProduct)
-            => new sp.Product
-               {
+        private static secondaryPorts.Product MapToUpsertSecondary(this primaryPorts.UpsertProduct upsertProduct)
+            => new()
+            {
                    Name = upsertProduct.Name,
                    Price = upsertProduct.Price,
                    AvailableQuantity = upsertProduct.AvailableQuantity,

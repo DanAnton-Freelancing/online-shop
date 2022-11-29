@@ -7,8 +7,8 @@ using OnlineShop.Primary.Adapters.Mappers;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
-using sp = OnlineShop.Secondary.Ports.DataContracts;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 using System.Threading.Tasks;
 using System.Threading;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Products;
@@ -19,8 +19,8 @@ namespace OnlineShop.Tests.Primary.Adapters
     [TestClass]
     public class ProductsAdapterTests : BaseTests
     {
-        private sp.Product _firstProduct;
-        private List<sp.Product> _products;
+        private secondaryPorts.Product _firstProduct;
+        private List<secondaryPorts.Product> _products;
         private ProductsAdapter _productsAdapter;
 
         [TestInitialize]
@@ -43,7 +43,7 @@ namespace OnlineShop.Tests.Primary.Adapters
             var result = await _productsAdapter.GetAllAsync(CancellationToken.None);
 
             //Assert
-            Assert.IsTrue(ModelAssertionsUtils<pp.Product>.AreListsEqual(result.Data, _products.MapToPrimary()));
+            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Product>.AreListsEqual(result.Data, _products.MapToPrimary()));
         }
 
         [TestMethod]

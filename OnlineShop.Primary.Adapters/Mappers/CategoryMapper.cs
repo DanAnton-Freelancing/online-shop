@@ -1,36 +1,36 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using sp = OnlineShop.Secondary.Ports.DataContracts;
-using pp = OnlineShop.Primary.Ports.DataContracts;
+using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Adapters.Mappers
 {
     public static class CategoryMapper
     {
-        public static List<pp.Category> MapToPrimary(this List<sp.Category> products)
+        public static List<primaryPorts.Category> MapToPrimary(this List<secondaryPorts.Category> products)
             => products.Select(l => l.MapToPrimary())
                        .ToList();
 
-        public static pp.Category MapToPrimary(this sp.Category product)
-            => new pp.Category
-               {
+        public static primaryPorts.Category MapToPrimary(this secondaryPorts.Category product)
+            => new()
+            {
                    Id = product.Id.GetValueOrDefault(),
                    Name = product.Name
                };
 
-        public static List<sp.Category> MapToSecondary(this IList<pp.UpsertCategory> products)
+        public static List<secondaryPorts.Category> MapToSecondary(this IList<primaryPorts.UpsertCategory> products)
             => products.Select(r => r.MapToUpsertSecondary())
                        .ToList();
 
-        public static sp.Category MapToSecondary(this pp.UpsertCategory upsertProduct)
-            => new sp.Category
-               {
+        public static secondaryPorts.Category MapToSecondary(this primaryPorts.UpsertCategory upsertProduct)
+            => new()
+            {
                    Name = upsertProduct.Name
                };
 
-        private static sp.Category MapToUpsertSecondary(this pp.UpsertCategory upsertProduct)
-            => new sp.Category
-               {
+        private static secondaryPorts.Category MapToUpsertSecondary(this primaryPorts.UpsertCategory upsertProduct)
+            => new()
+            {
                    Name = upsertProduct.Name
                };
     }

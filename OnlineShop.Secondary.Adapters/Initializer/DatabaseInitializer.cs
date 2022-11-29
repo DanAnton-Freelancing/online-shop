@@ -6,21 +6,21 @@ namespace OnlineShop.Secondary.Adapters.Initializer
 {
     public static class DatabaseInitializer
     {
-        private static readonly List<Category> Categories = new List<Category>
-                                                            {
+        private static readonly List<Category> Categories = new()
+        {
                                                                 new Category
                                                                 {
                                                                     Name = "Games",
                                                                     Products = new List<Product>
                                                                                {
-                                                                                   new Product
+                                                                                   new()
                                                                                    {
                                                                                        Name = "Need For Speed",
                                                                                        AvailableQuantity = 50,
                                                                                        Price = (decimal?) 150.32
                                                                                    },
 
-                                                                                   new Product
+                                                                                   new()
                                                                                    {
                                                                                        Name = "Fifa 19",
                                                                                        AvailableQuantity = 100,
@@ -34,7 +34,7 @@ namespace OnlineShop.Secondary.Adapters.Initializer
                                                                     Name = "Electronics",
                                                                     Products = new List<Product>
                                                                                {
-                                                                                   new Product
+                                                                                   new()
                                                                                    {
                                                                                        Name = "Coffee machine",
                                                                                        AvailableQuantity = 60,
@@ -48,7 +48,7 @@ namespace OnlineShop.Secondary.Adapters.Initializer
                                                                     Name = "Books",
                                                                     Products = new List<Product>
                                                                                {
-                                                                                   new Product
+                                                                                   new()
                                                                                    {
                                                                                        Name =
                                                                                            "Building maintainable software",

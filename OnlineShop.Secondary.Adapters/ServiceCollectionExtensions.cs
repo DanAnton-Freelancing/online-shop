@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineShop.Secondary.Adapters.Implementation;
 using OnlineShop.Shared.Ports.Extensions;
@@ -16,7 +17,11 @@ namespace OnlineShop.Secondary.Adapters
                                       });
 
             services.AddEntityFrameworkSqlServer()
-                    .AddDbContext<DatabaseContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Transient);
+                    .AddDbContext<DatabaseContext>(options =>
+                    {
+                        options.UseSqlServer(connectionString);
+                        options.ConfigureWarnings(b => b.Ignore(RelationalEventId.AmbientTransactionWarning));
+                    }, ServiceLifetime.Transient);
         }
     }
 }
