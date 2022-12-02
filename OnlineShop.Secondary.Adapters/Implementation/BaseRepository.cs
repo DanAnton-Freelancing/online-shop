@@ -6,47 +6,66 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 
-namespace OnlineShop.Secondary.Adapters.Implementation
+namespace OnlineShop.Secondary.Adapters.Implementation;
+
+public abstract class BaseRepository<T> : IBaseRepository<T>
+    where T : EditableEntity
 {
-    public abstract class BaseRepository<T> : IBaseRepository<T>
-        where T : EditableEntity
+    protected readonly DatabaseContext DbContext;
+
+    protected BaseRepository(DatabaseContext dbContext)
     {
-        protected readonly DatabaseContext DbContext;
+        DbContext = dbContext;
+    }
 
-        protected BaseRepository(DatabaseContext dbContext) => DbContext = dbContext;
+    protected DbSet<T> DbSet => DbContext.Set<T>();
 
-        protected DbSet<T> DbSet => DbContext.Set<T>();
+    public async Task<Result<List<T>>> GetAsync(CancellationToken cancellationToken, 
+        Expression<Func<T, bool>> filter = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+    {
+        var queryable = GetAsync(filter, orderBy, include);
 
-        public async Task<Result<T>> GetAsync(Guid id, CancellationToken cancellationToken)
-        {
-            var data = await DbSet.FirstOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
-            return data != null
-                ? Result.Ok(data)
-                : Result.Error<T>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
-        }
+        var data = await queryable.ToListAsync(cancellationToken);
 
-        public async Task<Result<List<T>>> GetAsync(CancellationToken cancellationToken)
-            => await GetAsync(e => true, cancellationToken);
+        return data.Count > 0
+            ? Result.Ok(data)
+            : Result.Error<List<T>>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
+    }
+    public async Task<Result<T>> GetOneAsync(
+        Expression<Func<T, bool>> filter,
+        CancellationToken cancellationToken,
+        Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+    {
+        var queryable = GetAsync(filter, orderBy, include);
 
-        public async Task<Result<List<T>>> GetAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
-        {
-            var data = await DbSet.Where(predicate).ToListAsync(cancellationToken);
-            return data.Count > 0
-                ? Result.Ok(data)
-                : Result.Error<List<T>>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
-        }
+        var data = await queryable.FirstOrDefaultAsync(cancellationToken);
 
-        public async Task<Result<T>> GetOneAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
-        {
-            var data = await DbSet.FirstOrDefaultAsync(predicate, cancellationToken);
-            return data != null
-                ? Result.Ok(data)
-                : Result.Error<T>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
-        }
+        return data != null
+            ? Result.Ok(data)
+            : Result.Error<T>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
+    }
+
+    private IQueryable<T> GetAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy, Func<IQueryable<T>, IIncludableQueryable<T, object>> include)
+    {
+        IQueryable<T> queryable = DbSet;
+
+        if (filter != null)
+            queryable = queryable.Where(filter);
+
+        if (include != null)
+            queryable = include(queryable);
+
+        if (orderBy != null)
+            queryable = orderBy(queryable);
+        return queryable;
     }
 }

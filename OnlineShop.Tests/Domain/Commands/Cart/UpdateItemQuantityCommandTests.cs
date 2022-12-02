@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Cart;
@@ -31,9 +34,11 @@ namespace OnlineShop.Tests.Domain.Commands.Cart
                                                                                                                _productWriterRepositoryMock.Object);
             _userCart = UserFactory.CreateUserCart();
             _cartItem = UserCartFactory.CreateCartItem(_userCart);
-
-            _productWriterRepositoryMock.Setup(uc => uc.GetAsync(It.IsAny<Guid>(), CancellationToken.None))
-                                        .ReturnsAsync(Result.Ok(_cartItem.Product));
+            
+            _productWriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
+                .ReturnsAsync(Result.Ok(_cartItem.Product));
 
             _productWriterRepositoryMock.Setup(p => p.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
                                         .ReturnsAsync(Result.Ok(_cartItem.Product.Id.GetValueOrDefault()));

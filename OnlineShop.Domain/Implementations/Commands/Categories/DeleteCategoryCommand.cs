@@ -23,7 +23,7 @@ namespace OnlineShop.Domain.Implementations.Commands.Categories
             }
 
             public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
-                => await _categoryWriterRepository.GetAsync(request.Id, cancellationToken)
+                => await _categoryWriterRepository.GetOneAsync(c => c.Id == request.Id, cancellationToken)
                                                   .AndAsync(c => _categoryWriterRepository.CheckIfIsUsedAsync(c.Id.GetValueOrDefault(), cancellationToken))
                                                   .AndAsync(() => _categoryWriterRepository.DeleteAsync(request.Id, cancellationToken))
                                                   .RemoveDataAsync();

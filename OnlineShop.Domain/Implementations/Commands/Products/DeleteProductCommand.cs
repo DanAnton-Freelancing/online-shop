@@ -20,7 +20,7 @@ namespace OnlineShop.Domain.Implementations.Commands.Products
                 => _productWriterRepository = productWriterRepository;
 
             public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
-                => await _productWriterRepository.GetAsync(request.Id, cancellationToken)
+                => await _productWriterRepository.GetOneAsync(p => p.Id == request.Id, cancellationToken)
                                                  .AndAsync(p => _productWriterRepository.CheckIfIsUsedAsync(p.Id.GetValueOrDefault(),cancellationToken))
                                                  .AndAsync(() => _productWriterRepository.DeleteAsync(request.Id, cancellationToken))
                                                  .RemoveDataAsync();

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq.Expressions;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Products;
@@ -33,7 +36,9 @@ namespace OnlineShop.Tests.Domain.Commands.Products
             //Arrange
             var upsertProduct = ProductFactory.CreateUpsert();
 
-            WriterRepositoryMock.Setup(ls => ls.GetAsync(It.IsAny<Guid>(), CancellationToken.None))
+            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
                 .ReturnsAsync(Result.Ok(upsertProduct));
 
             WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
@@ -61,7 +66,9 @@ namespace OnlineShop.Tests.Domain.Commands.Products
             var upsertProduct = ProductFactory.CreateUpsert();
             var error = Result.Error<Product>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
 
-            WriterRepositoryMock.Setup(ls => ls.GetAsync(It.IsAny<Guid>(), CancellationToken.None))
+            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
                 .ReturnsAsync(error);
 
             WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
@@ -90,7 +97,9 @@ namespace OnlineShop.Tests.Domain.Commands.Products
             var upsertProduct = ProductFactory.CreateUpsert();
             var error = Result.Error<Product>(HttpStatusCode.BadRequest, "[InUseNotDeleted]", ErrorMessages.InUseNotDeleted);
 
-            WriterRepositoryMock.Setup(ls => ls.GetAsync(It.IsAny<Guid>(), CancellationToken.None))
+            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
                 .ReturnsAsync(Result.Ok(upsertProduct));
 
             WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))

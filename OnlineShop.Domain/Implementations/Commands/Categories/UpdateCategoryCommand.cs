@@ -9,26 +9,26 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Extensions;
 
-namespace OnlineShop.Domain.Implementations.Commands.Categories
+namespace OnlineShop.Domain.Implementations.Commands.Categories;
+
+public class UpdateCategoryCommand : IUpdateCategoryCommand
 {
-    public class UpdateCategoryCommand : IUpdateCategoryCommand
+    public Guid Id { get; set; }
+    public Category Data { get; set; }
+
+    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Result<Guid>>
     {
-        public Guid Id { get; set; }
-        public Category Data { get; set; }
+        private readonly ICategoryWriterRepository _categoryWriterRepository;
 
-        public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Result<Guid>>
+        public UpdateCategoryCommandHandler(ICategoryWriterRepository categoryWriterRepository)
         {
-            private readonly ICategoryWriterRepository _categoryWriterRepository;
-            public UpdateCategoryCommandHandler(ICategoryWriterRepository categoryWriterRepository)
-            {
-                _categoryWriterRepository = categoryWriterRepository;
-            }
-
-            public async Task<Result<Guid>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
-                => await _categoryWriterRepository.GetAsync(request.Id, cancellationToken)
-                                                  .AndAsync(c => c.Validate())
-                                                  .AndAsync(c => c.Hidrate(request.Data))
-                                                  .AndAsync(c => _categoryWriterRepository.SaveAsync(c, cancellationToken));
+            _categoryWriterRepository = categoryWriterRepository;
         }
+
+        public async Task<Result<Guid>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken) 
+            => await _categoryWriterRepository.GetOneAsync(c => c.Id == request.Id, cancellationToken)
+                                              .AndAsync(c => c.Validate())
+                                              .AndAsync(c => c.Hidrate(request.Data))
+                                              .AndAsync(c => _categoryWriterRepository.SaveAsync(c, cancellationToken));
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Categories;
@@ -36,9 +38,11 @@ namespace OnlineShop.Tests.Domain.Commands.Categories
             WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Category>(), CancellationToken.None))
                 .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
 
-            WriterRepositoryMock.Setup(ls => ls.GetAsync(It.IsAny<Guid>(),CancellationToken.None))
+            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Category, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
+                    It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
                 .ReturnsAsync(Result.Ok(_firstCategory));
-
+            
             //Act
             var result = await _updateProductsCommandHandler.Handle(new UpdateCategoryCommand
             {

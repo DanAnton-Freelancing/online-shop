@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq.Expressions;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Categories;
@@ -33,7 +36,9 @@ namespace OnlineShop.Tests.Domain.Commands.Categories
             //Arrange
             var upsertProduct = CategoryFactory.CreateUpsert();
 
-            WriterRepositoryMock.Setup(ls => ls.GetAsync(It.IsAny<Guid>(), CancellationToken.None))
+            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Category, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
+                    It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
                 .ReturnsAsync(Result.Ok(upsertProduct));
 
             WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
@@ -61,9 +66,11 @@ namespace OnlineShop.Tests.Domain.Commands.Categories
             var upsertCategory = CategoryFactory.CreateUpsert();
             var error = Result.Error<Category>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
 
-            WriterRepositoryMock.Setup(ls => ls.GetAsync(It.IsAny<Guid>(), CancellationToken.None))
+            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Category, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
+                    It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
                 .ReturnsAsync(error);
-
+            
             WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
                 .ReturnsAsync(Result.Ok());
 
@@ -90,7 +97,9 @@ namespace OnlineShop.Tests.Domain.Commands.Categories
             var upsertCategory = CategoryFactory.CreateUpsert();
             var error = Result.Error<Category>(HttpStatusCode.BadRequest, "[InUseNotDeleted]", ErrorMessages.InUseNotDeleted);
 
-            WriterRepositoryMock.Setup(ls => ls.GetAsync(It.IsAny<Guid>(), CancellationToken.None))
+            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Category, bool>>>(),
+                    CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
+                    It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
                 .ReturnsAsync(Result.Ok(upsertCategory));
 
             WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))

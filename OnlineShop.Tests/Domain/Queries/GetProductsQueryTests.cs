@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Queries;
@@ -33,7 +37,9 @@ namespace OnlineShop.Tests.Domain.Queries
         public async Task WhenGetProducts_ThenShouldReturnProducts()
         {
             //Arrange
-            _productReaderRepositoryMock.Setup(ls => ls.GetAsync(CancellationToken.None))
+            _productReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None,
+                    It.IsAny<Expression<Func<Product, bool>>>(),It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
                 .ReturnsAsync(Result.Ok(_products));
 
             //Act

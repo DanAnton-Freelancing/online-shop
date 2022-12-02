@@ -34,7 +34,7 @@ namespace OnlineShop.Domain.Implementations.Commands.Cart
             }
 
             public Task<Result> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
-                => _productWriterRepository.GetAsync(request.CartItem.ProductId, cancellationToken)
+                => _productWriterRepository.GetOneAsync(p => p.CartItem.ProductId == request.CartItem.ProductId, cancellationToken)
                                            .PipeAsync(i => i.IsAvailable())
                                            .PipeAsync(p => _product = p)
                                            .PipeAsync(p => request.CartItem.Hidrate(p))
@@ -42,7 +42,7 @@ namespace OnlineShop.Domain.Implementations.Commands.Cart
                                            .AndAsync(c => c.AddCartItem(request.CartItem))
                                            .PipeAsync(c => _cartItemWriterRepository.SaveAsync(c.CartItems, cancellationToken))
                                            .PipeAsync(c => _userCartWriterRepository.SaveAsync(c, cancellationToken))
-                                           .AndAsync(p => _product.UpdateQuantity(0, request.CartItem.Quantity))
+                                           .AndAsync(_ => _product.UpdateQuantity(0, request.CartItem.Quantity))
                                            .AndAsync(p => _productWriterRepository.SaveAsync(p, cancellationToken))
                                            .RemoveDataAsync();
         }

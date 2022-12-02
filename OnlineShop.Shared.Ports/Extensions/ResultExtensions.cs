@@ -271,22 +271,18 @@ namespace OnlineShop.Shared.Ports.Extensions
 
         private static HttpStatusCode GetDefaultStatusCode(this MessageType messageType)
         {
-            switch (messageType) {
-                case MessageType.Debug:
-                case MessageType.Info:
-                case MessageType.Warning:
-                case MessageType.Confirmation:
-                    return HttpStatusCode.OK;
-                case MessageType.Error:
-                case MessageType.OtherError:
-                    return HttpStatusCode.InternalServerError;
-                case MessageType.ConcurrencyError:
-                    return HttpStatusCode.Conflict;
-                case MessageType.ValidationError:
-                    return HttpStatusCode.BadRequest;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(messageType), messageType, null);
-            }
+            return messageType switch
+            {
+                MessageType.Debug => HttpStatusCode.OK,
+                MessageType.Info => HttpStatusCode.OK,
+                MessageType.Warning => HttpStatusCode.OK,
+                MessageType.Confirmation => HttpStatusCode.OK,
+                MessageType.Error => HttpStatusCode.InternalServerError,
+                MessageType.OtherError => HttpStatusCode.InternalServerError,
+                MessageType.ConcurrencyError => HttpStatusCode.Conflict,
+                MessageType.ValidationError => HttpStatusCode.BadRequest,
+                _ => throw new ArgumentOutOfRangeException(nameof(messageType), messageType, null)
+            };
         }
     }
 }
