@@ -7,24 +7,23 @@ using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 
-namespace OnlineShop.Domain.Implementations.Commands.Products
+namespace OnlineShop.Domain.Implementations.Commands.Products;
+
+public class AddProductsCommand : IAddProductsCommand
 {
-    public class AddProductsCommand : IAddProductsCommand
-    {
-        public Product Data { get; set; }
+    public Product Data { get; set; }
         
-        public class AddProductsCommandHandler : IRequestHandler<AddProductsCommand, Result<Guid>>
+    public class AddProductsCommandHandler : IRequestHandler<AddProductsCommand, Result<Guid>>
+    {
+        private readonly IProductWriterRepository _productWriterRepository;
+
+        public AddProductsCommandHandler(IProductWriterRepository productWriterRepository)
         {
-            private readonly IProductWriterRepository _productWriterRepository;
-
-            public AddProductsCommandHandler(IProductWriterRepository productWriterRepository)
-            {
-                // add guard for repository 
-                _productWriterRepository = productWriterRepository;
-            }
-
-            public async Task<Result<Guid>> Handle(AddProductsCommand request, CancellationToken cancellationToken) 
-                => await _productWriterRepository.SaveAsync(request.Data, cancellationToken);
+            // add guard for repository 
+            _productWriterRepository = productWriterRepository;
         }
+
+        public async Task<Result<Guid>> Handle(AddProductsCommand request, CancellationToken cancellationToken) 
+            => await _productWriterRepository.SaveAsync(request.Data, cancellationToken);
     }
 }

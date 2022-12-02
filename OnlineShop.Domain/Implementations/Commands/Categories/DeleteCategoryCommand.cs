@@ -7,26 +7,25 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Extensions;
 
-namespace OnlineShop.Domain.Implementations.Commands.Categories
+namespace OnlineShop.Domain.Implementations.Commands.Categories;
+
+public class DeleteCategoryCommand : IDeleteCategoryCommand
 {
-    public class DeleteCategoryCommand : IDeleteCategoryCommand
+    public Guid Id { get; set; }
+
+    public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Result>
     {
-        public Guid Id { get; set; }
+        private readonly ICategoryWriterRepository _categoryWriterRepository;
 
-        public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Result>
+        public DeleteCategoryCommandHandler(ICategoryWriterRepository categoryWriterRepository)
         {
-            private readonly ICategoryWriterRepository _categoryWriterRepository;
-
-            public DeleteCategoryCommandHandler(ICategoryWriterRepository categoryWriterRepository)
-            {
-                _categoryWriterRepository = categoryWriterRepository;
-            }
-
-            public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
-                => await _categoryWriterRepository.GetOneAsync(c => c.Id == request.Id, cancellationToken)
-                                                  .AndAsync(c => _categoryWriterRepository.CheckIfIsUsedAsync(c.Id.GetValueOrDefault(), cancellationToken))
-                                                  .AndAsync(() => _categoryWriterRepository.DeleteAsync(request.Id, cancellationToken))
-                                                  .RemoveDataAsync();
+            _categoryWriterRepository = categoryWriterRepository;
         }
+
+        public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
+            => await _categoryWriterRepository.GetOneAsync(c => c.Id == request.Id, cancellationToken)
+                .AndAsync(c => _categoryWriterRepository.CheckIfIsUsedAsync(c.Id.GetValueOrDefault(), cancellationToken))
+                .AndAsync(() => _categoryWriterRepository.DeleteAsync(request.Id, cancellationToken))
+                .RemoveDataAsync();
     }
 }

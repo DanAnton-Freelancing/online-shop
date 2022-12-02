@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,68 +13,72 @@ using OnlineShop.Primary.Adapters;
 using OnlineShop.Secondary.Adapters;
 using OnlineShop.Secondary.Adapters.Extensions;
 
-namespace OnlineShop.Api
+namespace OnlineShop.Api;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
+        => Configuration = configuration;
+
+    public IConfiguration Configuration { get; }
+
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
     {
-        public Startup(IConfiguration configuration)
-            => Configuration = configuration;
+        var appSettingsSection = Configuration.GetSection("AppSettings");
+        services.Configure<AppSettings>(appSettingsSection);
 
-        public IConfiguration Configuration { get; }
+        var appSettings = appSettingsSection.Get<AppSettings>();
+        var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+        services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+        services.AddSecondaryAdapters(appSettings.ConnectionString);
+        services.AddPrimaryAdapters(appSettings.Secret, Configuration);
+        services.AddMvc(options => options.EnableEndpointRouting = false)
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
+        services.AddSwagger();
+    }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(x =>
-                                       {
-                                           x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                                           x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                                       })
-                    .AddJwtBearer(x =>
-                                  {
-                                      x.RequireHttpsMetadata = false;
-                                      x.SaveToken = true;
-                                      x.TokenValidationParameters = new TokenValidationParameters
-                                                                    {
-                                                                        ValidateIssuerSigningKey = true,
-                                                                        IssuerSigningKey =
-                                                                            new SymmetricSecurityKey(key),
-                                                                        ValidateIssuer = false,
-                                                                        ValidateAudience = false
-                                                                    };
-                                  });
-            services.AddSecondaryAdapters(appSettings.ConnectionString);
-            services.AddPrimaryAdapters(appSettings.Secret, Configuration);
-            services.AddMvc(options => options.EnableEndpointRouting = false);
-            services.AddSwagger();
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment()) {
+            app.UseCustomSwaggerUi();
+            app.UseDeveloperExceptionPage();
+        }
+        else {
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment()) {
-                app.UseCustomSwaggerUi();
-                app.UseDeveloperExceptionPage();
-            }
-            else {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+        app.UseCors(x => x
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 
-            app.UseCors(x => x
-                             .AllowAnyOrigin()
-                             .AllowAnyMethod()
-                             .AllowAnyHeader());
-
-            app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseMvc();
-            app.SeedInitialData();
-        }
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseMvc();
+        app.SeedInitialData();
     }
 }

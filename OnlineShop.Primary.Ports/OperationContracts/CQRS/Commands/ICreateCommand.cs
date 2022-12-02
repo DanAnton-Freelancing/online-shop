@@ -1,7 +1,6 @@
-﻿namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands
+﻿namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands;
+
+public interface ICreateCommand<T, out TI> : ICommand<TI>
 {
-    public interface ICreateCommand<T, out TI> : ICommand<TI>
-    {
-        T Data { get; set; }
-    }
+    T Data { get; set; }
 }

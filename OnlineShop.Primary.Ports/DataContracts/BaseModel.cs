@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace OnlineShop.Primary.Ports.DataContracts
+namespace OnlineShop.Primary.Ports.DataContracts;
+
+public abstract class BaseModel
 {
-    public abstract class BaseModel
-    {
-        public Guid? Id { get; set; }
-    }
+    public Guid? Id { get; set; }
 }

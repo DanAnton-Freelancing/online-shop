@@ -14,40 +14,39 @@ using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
 
-namespace OnlineShop.Tests.Domain.Queries
+namespace OnlineShop.Tests.Domain.Queries;
+
+[TestClass]
+public class GetProductsQueryTests: BaseTests
 {
-    [TestClass]
-    public class GetProductsQueryTests: BaseTests
+    private Mock<IProductReaderRepository> _productReaderRepositoryMock;
+    private List<Product> _products;
+    private GetProductsQuery.GetProductsQueryHandler _getProductsQueryHandler;
+
+    [TestInitialize]
+    public override void Initialize()
     {
-        private Mock<IProductReaderRepository> _productReaderRepositoryMock;
-        private List<Product> _products;
-        private GetProductsQuery.GetProductsQueryHandler _getProductsQueryHandler;
+        base.Initialize();
+        _productReaderRepositoryMock = new Mock<IProductReaderRepository>(MockBehavior.Strict) { CallBase = true };
+        _products = ProductFactory.Create();
+        _getProductsQueryHandler = new GetProductsQuery.GetProductsQueryHandler(_productReaderRepositoryMock.Object);
 
-        [TestInitialize]
-        public override void Initialize()
-        {
-            base.Initialize();
-            _productReaderRepositoryMock = new Mock<IProductReaderRepository>(MockBehavior.Strict) { CallBase = true };
-            _products = ProductFactory.Create();
-            _getProductsQueryHandler = new GetProductsQuery.GetProductsQueryHandler(_productReaderRepositoryMock.Object);
+    }
 
-        }
+    [TestMethod]
+    public async Task WhenGetProducts_ThenShouldReturnProducts()
+    {
+        //Arrange
+        _productReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None,
+                It.IsAny<Expression<Func<Product, bool>>>(),It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
+            .ReturnsAsync(Result.Ok(_products));
 
-        [TestMethod]
-        public async Task WhenGetProducts_ThenShouldReturnProducts()
-        {
-            //Arrange
-            _productReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None,
-                    It.IsAny<Expression<Func<Product, bool>>>(),It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
-                .ReturnsAsync(Result.Ok(_products));
+        //Act
+        var result = await _getProductsQueryHandler.Handle(new GetProductsQuery(), CancellationToken.None);
 
-            //Act
-            var result = await _getProductsQueryHandler.Handle(new GetProductsQuery(), CancellationToken.None);
+        //Assert
+        Assert.IsTrue(EntitiesAssertionsUtils<Product>.AreListsEqual(result.Data, _products));
 
-            //Assert
-            Assert.IsTrue(EntitiesAssertionsUtils<Product>.AreListsEqual(result.Data, _products));
-
-        }
     }
 }

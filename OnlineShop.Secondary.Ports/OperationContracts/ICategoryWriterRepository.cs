@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 
-namespace OnlineShop.Secondary.Ports.OperationContracts
+namespace OnlineShop.Secondary.Ports.OperationContracts;
+
+public interface ICategoryWriterRepository : IBaseWriterRepository<Category>
 {
-    public interface ICategoryWriterRepository : IBaseWriterRepository<Category>
-    {
-        Task<Result> CheckIfIsUsedAsync(Guid id, CancellationToken cancellationToken);
-    }
+    Task<Result> CheckIfIsUsedAsync(Guid id, CancellationToken cancellationToken);
 }

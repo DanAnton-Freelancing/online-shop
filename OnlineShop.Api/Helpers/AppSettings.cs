@@ -1,9 +1,8 @@
-﻿namespace OnlineShop.Api.Helpers
-{
-    public class AppSettings
-    {
-        public string ConnectionString { get; set; }
+﻿namespace OnlineShop.Api.Helpers;
 
-        public string Secret { get; set; }
-    }
+public class AppSettings
+{
+    public string ConnectionString { get; set; }
+
+    public string Secret { get; set; }
 }

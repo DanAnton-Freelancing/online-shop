@@ -13,109 +13,108 @@ using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
 using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
-namespace OnlineShop.Tests.Primary.Adapters
+namespace OnlineShop.Tests.Primary.Adapters;
+
+[TestClass]
+public class UsersAdapterTests : BaseTests
 {
-    [TestClass]
-    public class UsersAdapterTests : BaseTests
+    private primaryPorts.LoginUser _loginUser;
+    private primaryPorts.RegisterUser _registerUser;
+    private UsersAdapter _usersAdapter;
+
+    [TestInitialize]
+    public override void Initialize()
     {
-        private primaryPorts.LoginUser _loginUser;
-        private primaryPorts.RegisterUser _registerUser;
-        private UsersAdapter _usersAdapter;
+        base.Initialize();
+        _usersAdapter = new UsersAdapter(MediatorMock.Object);
+        _registerUser = UserFactory.CreateRegisterUser();
+        _loginUser = UserFactory.CreateLoginUser();
+    }
 
-        [TestInitialize]
-        public override void Initialize()
-        {
-            base.Initialize();
-            _usersAdapter = new UsersAdapter(MediatorMock.Object);
-            _registerUser = UserFactory.CreateRegisterUser();
-            _loginUser = UserFactory.CreateLoginUser();
-        }
+    [TestMethod]
+    public async Task GiveUserDetails_WhenRegisterAsync_ThenReturnResultOk()
+    {
+        //Arrange
+        MediatorMock.Setup(m => m.Send(It.IsAny<IRegisterCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
 
-        [TestMethod]
-        public async Task GiveUserDetails_WhenRegisterAsync_ThenReturnResultOk()
-        {
-            //Arrange
-            MediatorMock.Setup(m => m.Send(It.IsAny<IRegisterCommand>(), CancellationToken.None))
-                         .ReturnsAsync(Result.Ok());
+        //Act
+        var actualResult = await _usersAdapter.RegisterAsync(_registerUser, CancellationToken.None);
 
-            //Act
-            var actualResult = await _usersAdapter.RegisterAsync(_registerUser, CancellationToken.None);
+        //Assert
+        Assert.IsTrue(actualResult.Success);
+    }
 
-            //Assert
-            Assert.IsTrue(actualResult.Success);
-        }
+    [TestMethod]
+    public async Task GivenExistingUserDetails_WhenRegisterAsync_ThenReturnResultAlreadyExist()
+    {
+        //Arrange
+        MediatorMock.Setup(m => m.Send(It.IsAny<IRegisterCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Error<bool>(HttpStatusCode.Conflict, 
+                "[AlreadyExist]",
+                ErrorMessages.UserAlreadyExist));
+        //Act
+        var actualResult = await _usersAdapter.RegisterAsync(_registerUser, CancellationToken.None);
 
-        [TestMethod]
-        public async Task GivenExistingUserDetails_WhenRegisterAsync_ThenReturnResultAlreadyExist()
-        {
-            //Arrange
-            MediatorMock.Setup(m => m.Send(It.IsAny<IRegisterCommand>(), CancellationToken.None))
-                         .ReturnsAsync(Result.Error<bool>(HttpStatusCode.Conflict, 
-                                                          "[AlreadyExist]",
-                                                          ErrorMessages.UserAlreadyExist));
-            //Act
-            var actualResult = await _usersAdapter.RegisterAsync(_registerUser, CancellationToken.None);
+        //Assert
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.Conflict,
+            "[AlreadyExist]",
+            actualResult.HttpStatusCode,
+            actualResult.ErrorMessage));
+    }
 
-            //Assert
-            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.Conflict,
-                                                                       "[AlreadyExist]",
-                                                                       actualResult.HttpStatusCode,
-                                                                       actualResult.ErrorMessage));
-        }
+    [TestMethod]
+    public async Task GivenUsernameAndPassword_WhenLoginAsync_ThenReturnResultOk()
+    {
+        //Arrange
 
-        [TestMethod]
-        public async Task GivenUsernameAndPassword_WhenLoginAsync_ThenReturnResultOk()
-        {
-            //Arrange
+        const string token = "Token";
+        MediatorMock.Setup(m => m.Send(It.IsAny<ILoginQuery>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(token));
 
-            const string token = "Token";
-            MediatorMock.Setup(m => m.Send(It.IsAny<ILoginQuery>(), CancellationToken.None))
-                         .ReturnsAsync(Result.Ok(token));
+        //Act
+        var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
 
-            //Act
-            var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
+        //Assert
+        Assert.IsTrue(actualResult.Success);
+        Assert.AreEqual(actualResult.HttpStatusCode, HttpStatusCode.OK);
+        Assert.AreEqual(actualResult.Data, "Token");
+    }
 
-            //Assert
-            Assert.IsTrue(actualResult.Success);
-            Assert.AreEqual(actualResult.HttpStatusCode, HttpStatusCode.OK);
-            Assert.AreEqual(actualResult.Data, "Token");
-        }
+    [TestMethod]
+    public async Task GivenWrongUsernameAndCorrectPassword_WhenLoginAsync_ThenReturnResultNotFound()
+    {
+        //Arrange
+        MediatorMock.Setup(m => m.Send(It.IsAny<ILoginQuery>(), CancellationToken.None))
+            .ReturnsAsync(Result.Error<string>(HttpStatusCode.NotFound, "[NotFound]",
+                ErrorMessages.NotFound));
 
-        [TestMethod]
-        public async Task GivenWrongUsernameAndCorrectPassword_WhenLoginAsync_ThenReturnResultNotFound()
-        {
-            //Arrange
-            MediatorMock.Setup(m => m.Send(It.IsAny<ILoginQuery>(), CancellationToken.None))
-                         .ReturnsAsync(Result.Error<string>(HttpStatusCode.NotFound, "[NotFound]",
-                                                           ErrorMessages.NotFound));
+        //Act
+        var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
 
-            //Act
-            var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
+        //Assert
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
+            "[NotFound]",
+            actualResult.HttpStatusCode,
+            actualResult.ErrorMessage));
+    }
 
-            //Assert
-            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
-                                                                       "[NotFound]",
-                                                                       actualResult.HttpStatusCode,
-                                                                       actualResult.ErrorMessage));
-        }
+    [TestMethod]
+    public async Task GivenCorrectUsernameAndWrongPassword_WhenLoginAsync_ThenReturnResultNotFound()
+    {
+        //Arrange
+        _loginUser.Password = Guid.NewGuid().ToString();
+        MediatorMock.Setup(m => m.Send(It.IsAny<ILoginQuery>(), CancellationToken.None))
+            .ReturnsAsync(Result.Error<string>(HttpStatusCode.NotFound, "[NotFound]",
+                ErrorMessages.NotFound));
 
-        [TestMethod]
-        public async Task GivenCorrectUsernameAndWrongPassword_WhenLoginAsync_ThenReturnResultNotFound()
-        {
-            //Arrange
-            _loginUser.Password = Guid.NewGuid().ToString();
-            MediatorMock.Setup(m => m.Send(It.IsAny<ILoginQuery>(), CancellationToken.None))
-                         .ReturnsAsync(Result.Error<string>(HttpStatusCode.NotFound, "[NotFound]",
-                                                           ErrorMessages.NotFound));
+        //Act
+        var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
 
-            //Act
-            var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
-
-            //Assert
-            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
-                                                                       "[NotFound]",
-                                                                       actualResult.HttpStatusCode,
-                                                                       actualResult.ErrorMessage));
-        }
+        //Assert
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
+            "[NotFound]",
+            actualResult.HttpStatusCode,
+            actualResult.ErrorMessage));
     }
 }

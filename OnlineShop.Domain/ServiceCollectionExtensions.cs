@@ -5,23 +5,22 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Extensions;
 
-namespace OnlineShop.Domain
-{
-    public static class ServiceCollectionExtensions
-    {
-        public static void AddDomain(this IServiceCollection services, string secret)
-        {
-            services.RegisterAllTypes(
-                new[]
-                {
-                    typeof(ServiceCollectionExtensions).Assembly
-                },
-                ServiceLifetime.Scoped,
-                "RequestHandler"
-            );
+namespace OnlineShop.Domain;
 
-            services.AddScoped<IRequestHandler<LoginQuery, Result<string>>>(
-                s => new LoginQuery.LoginQueryHandler(s.GetRequiredService<IUserReaderRepository>(), secret));
-        }
+public static class ServiceCollectionExtensions
+{
+    public static void AddDomain(this IServiceCollection services, string secret)
+    {
+        services.RegisterAllTypes(
+            new[]
+            {
+                typeof(ServiceCollectionExtensions).Assembly
+            },
+            ServiceLifetime.Scoped,
+            "RequestHandler"
+        );
+
+        services.AddScoped<IRequestHandler<LoginQuery, Result<string>>>(
+            s => new LoginQuery.LoginQueryHandler(s.GetRequiredService<IUserReaderRepository>(), secret));
     }
 }

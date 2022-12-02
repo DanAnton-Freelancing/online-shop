@@ -14,85 +14,84 @@ using OnlineShop.Tests.Factories;
 using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
 using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
-namespace OnlineShop.Tests.Primary.Adapters
+namespace OnlineShop.Tests.Primary.Adapters;
+
+[TestClass]
+public class CategoriesAdapterTests : BaseTests
 {
-    [TestClass]
-    public class CategoriesAdapterTests : BaseTests
+    private List<secondaryPorts.Category> _categories;
+    private CategoriesAdapter _categoriesAdapter;
+    private secondaryPorts.Category _firstCategory;
+
+    [TestInitialize]
+    public override void Initialize()
     {
-        private List<secondaryPorts.Category> _categories;
-        private CategoriesAdapter _categoriesAdapter;
-        private secondaryPorts.Category _firstCategory;
+        base.Initialize();
+        _categories = CategoryFactory.Create();
+        _categoriesAdapter = new CategoriesAdapter(MediatorMock.Object);
+        _firstCategory = _categories.First().ToEntity();
+    }
 
-        [TestInitialize]
-        public override void Initialize()
-        {
-            base.Initialize();
-            _categories = CategoryFactory.Create();
-            _categoriesAdapter = new CategoriesAdapter(MediatorMock.Object);
-            _firstCategory = _categories.First().ToEntity();
-        }
+    [TestMethod]
+    public async Task WhenGetCategoriesAsync_ThenShouldReturnCategories()
+    {
+        //Arrange
+        MediatorMock.Setup(m => m.Send(It.IsAny<IGetCategoriesQuery>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_categories));
 
-        [TestMethod]
-        public async Task WhenGetCategoriesAsync_ThenShouldReturnCategories()
-        {
-            //Arrange
-            MediatorMock.Setup(m => m.Send(It.IsAny<IGetCategoriesQuery>(), CancellationToken.None))
-                        .ReturnsAsync(Result.Ok(_categories));
+        //Act
+        var result = await _categoriesAdapter.GetAllAsync(CancellationToken.None);
 
-            //Act
-            var result = await _categoriesAdapter.GetAllAsync(CancellationToken.None);
+        //Assert
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Category>.AreListsEqual(result.Data, _categories.MapToPrimary()));
+    }
 
-            //Assert
-            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Category>.AreListsEqual(result.Data, _categories.MapToPrimary()));
-        }
+    [TestMethod]
+    public async Task GivenCategories_WhenInsertAsync_ThenShouldReturnIds()
+    {
+        //Arrange
+        var categoriesIds = _categories.Select(l => l.Id.GetValueOrDefault()).ToList();
 
-        [TestMethod]
-        public async Task GivenCategories_WhenInsertAsync_ThenShouldReturnIds()
-        {
-            //Arrange
-            var categoriesIds = _categories.Select(l => l.Id.GetValueOrDefault()).ToList();
+        MediatorMock.Setup(m => m.Send(It.IsAny<IAddCategoriesCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(categoriesIds));
 
-            MediatorMock.Setup(m => m.Send(It.IsAny<IAddCategoriesCommand>(), CancellationToken.None))
-                        .ReturnsAsync(Result.Ok(categoriesIds));
+        var upsertCategories = CategoryFactory.CreateUpsertModels();
 
-            var upsertCategories = CategoryFactory.CreateUpsertModels();
+        //Act
+        var result = await _categoriesAdapter.InsertAsync(upsertCategories, CancellationToken.None);
 
-            //Act
-            var result = await _categoriesAdapter.InsertAsync(upsertCategories, CancellationToken.None);
+        //Assert
+        Assert.AreEqual(categoriesIds, result.Data);
+    }
 
-            //Assert
-            Assert.AreEqual(categoriesIds, result.Data);
-        }
+    [TestMethod]
+    public async Task GivenCategoryAndId_WhenUpdateAsync_ThenShouldReturnId()
+    {
+        //Arrange
+        var upsertCategory = CategoryFactory.CreateUpsertModel();
 
-        [TestMethod]
-        public async Task GivenCategoryAndId_WhenUpdateAsync_ThenShouldReturnId()
-        {
-            //Arrange
-            var upsertCategory = CategoryFactory.CreateUpsertModel();
+        MediatorMock.Setup(m => m.Send(It.IsAny<IUpdateCategoryCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
 
-            MediatorMock.Setup(m => m.Send(It.IsAny<IUpdateCategoryCommand>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
+        //Act
+        var result = await _categoriesAdapter.UpdateAsync(_firstCategory.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
 
-            //Act
-            var result = await _categoriesAdapter.UpdateAsync(_firstCategory.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
+        //Assert
+        Assert.AreEqual(_firstCategory.Id.GetValueOrDefault(), result.Data);
+    }
 
-            //Assert
-            Assert.AreEqual(_firstCategory.Id.GetValueOrDefault(), result.Data);
-        }
+    [TestMethod]
+    public async Task GivenCategoryId_WhenDeleteAsync_ThenShouldReturnOk()
+    {
+        //Arrange
 
-        [TestMethod]
-        public async Task GivenCategoryId_WhenDeleteAsync_ThenShouldReturnOk()
-        {
-            //Arrange
+        MediatorMock.Setup(m => m.Send(It.IsAny<IDeleteCategoryCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
 
-            MediatorMock.Setup(m => m.Send(It.IsAny<IDeleteCategoryCommand>(), CancellationToken.None))
-                        .ReturnsAsync(Result.Ok());
+        //Act
+        var result = await _categoriesAdapter.DeleteAsync(_firstCategory.Id.GetValueOrDefault(), CancellationToken.None);
 
-            //Act
-            var result = await _categoriesAdapter.DeleteAsync(_firstCategory.Id.GetValueOrDefault(), CancellationToken.None);
-
-            //Assert
-            Assert.IsTrue(result.Success);
-        }
+        //Assert
+        Assert.IsTrue(result.Success);
     }
 }

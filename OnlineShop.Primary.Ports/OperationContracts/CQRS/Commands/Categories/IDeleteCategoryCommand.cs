@@ -1,6 +1,5 @@
-﻿namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Categories
+﻿namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Categories;
+
+public interface IDeleteCategoryCommand : IDeleteCommand
 {
-    public interface IDeleteCategoryCommand : IDeleteCommand
-    {
-    }
 }

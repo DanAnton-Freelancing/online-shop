@@ -1,14 +1,13 @@
-﻿namespace OnlineShop.Shared.Ports.DataContracts
+﻿namespace OnlineShop.Shared.Ports.DataContracts;
+
+public enum MessageType
 {
-    public enum MessageType
-    {
-        Debug,
-        Info,
-        Warning,
-        Confirmation,
-        Error,
-        OtherError,
-        ConcurrencyError,
-        ValidationError
-    }
+    Debug,
+    Info,
+    Warning,
+    Confirmation,
+    Error,
+    OtherError,
+    ConcurrencyError,
+    ValidationError
 }

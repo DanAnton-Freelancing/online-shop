@@ -8,21 +8,20 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 
-namespace OnlineShop.Secondary.Adapters.Implementation.Category
+namespace OnlineShop.Secondary.Adapters.Implementation.Category;
+
+public class CategoryWriterRepository : BaseWriterRepository<Ports.DataContracts.Category>, ICategoryWriterRepository
 {
-    public class CategoryWriterRepository : BaseWriterRepository<Ports.DataContracts.Category>, ICategoryWriterRepository
+    public CategoryWriterRepository(DatabaseContext dbContext) : base(dbContext) { }
+
+    public async Task<Result> CheckIfIsUsedAsync(Guid id, CancellationToken cancellationToken)
     {
-        public CategoryWriterRepository(DatabaseContext dbContext) : base(dbContext) { }
+        var category = await DbSet.Where(c => c.Id.Equals(id))
+            .Include(c => c.Products)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        public async Task<Result> CheckIfIsUsedAsync(Guid id, CancellationToken cancellationToken)
-        {
-            var category = await DbSet.Where(c => c.Id.Equals(id))
-                                      .Include(c => c.Products)
-                                      .FirstOrDefaultAsync(cancellationToken);
-
-            return category.Products.Count > 0 
-                ? Result.Error(HttpStatusCode.BadRequest, "[InUseNotDeleted]", ErrorMessages.InUseNotDeleted) 
-                : Result.Ok();
-        }
+        return category?.Products.Count > 0 
+            ? Result.Error(HttpStatusCode.BadRequest, "[InUseNotDeleted]", ErrorMessages.InUseNotDeleted) 
+            : Result.Ok();
     }
 }

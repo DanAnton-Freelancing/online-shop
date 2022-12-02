@@ -7,21 +7,20 @@ using OnlineShop.Domain;
 using OnlineShop.Primary.Adapters.Implementation;
 using OnlineShop.Shared.Ports.Extensions;
 
-namespace OnlineShop.Primary.Adapters
-{
-    public static class ServiceCollectionExtensions
-    {
-        public static void AddPrimaryAdapters(this IServiceCollection services, string secret, IConfiguration configuration)
-        {
-            services.RegisterAllTypes(new[]
-                                      {
-                                          typeof(CrudAdapter<,>).Assembly
-                                      });
-            services.AddDomain(secret);
-            services.AddMediatR(Assembly.GetExecutingAssembly());
+namespace OnlineShop.Primary.Adapters;
 
-            services.AddDefaultAWSOptions(configuration.GetAWSOptions());
-            services.AddAWSService<IAmazonS3>();
-        }
+public static class ServiceCollectionExtensions
+{
+    public static void AddPrimaryAdapters(this IServiceCollection services, string secret, IConfiguration configuration)
+    {
+        services.RegisterAllTypes(new[]
+        {
+            typeof(CrudAdapter<,>).Assembly
+        });
+        services.AddDomain(secret);
+        services.AddMediatR(Assembly.GetExecutingAssembly());
+
+        services.AddDefaultAWSOptions(configuration.GetAWSOptions());
+        services.AddAWSService<IAmazonS3>();
     }
 }

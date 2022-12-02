@@ -1,8 +1,7 @@
-﻿namespace OnlineShop.Primary.Ports.DataContracts
+﻿namespace OnlineShop.Primary.Ports.DataContracts;
+
+public class LoginUser
 {
-    public class LoginUser
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
+    public string Username { get; set; }
+    public string Password { get; set; }
 }

@@ -1,7 +1,6 @@
-﻿namespace OnlineShop.Secondary.Ports.DataContracts
+﻿namespace OnlineShop.Secondary.Ports.DataContracts;
+
+public class EditableEntity : BaseEntity
 {
-    public class EditableEntity : BaseEntity
-    {
-        public byte[] Version { get; set; }
-    }
+    public byte[] Version { get; set; }
 }

@@ -1,7 +1,6 @@
-﻿namespace OnlineShop.Primary.Ports.DataContracts
+﻿namespace OnlineShop.Primary.Ports.DataContracts;
+
+public class UpsertCategory : BaseUpsertModel
 {
-    public class UpsertCategory : BaseUpsertModel
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

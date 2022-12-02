@@ -7,19 +7,18 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 
-namespace OnlineShop.Secondary.Adapters.Implementation.Cart
+namespace OnlineShop.Secondary.Adapters.Implementation.Cart;
+
+public class UserCartWriterRepository : BaseWriterRepository<UserCart>, IUserCartWriterRepository
 {
-    public class UserCartWriterRepository : BaseWriterRepository<UserCart>, IUserCartWriterRepository
+    public UserCartWriterRepository(DatabaseContext dbContext) : base(dbContext) { }
+
+    public async Task<Result<UserCart>> GetWithDetailsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        public UserCartWriterRepository(DatabaseContext dbContext) : base(dbContext) { }
+        var userCart = await UserCartDetailsFactory.Create(DbContext,userId, cancellationToken);
 
-        public async Task<Result<UserCart>> GetWithDetailsAsync(Guid userId, CancellationToken cancellationToken)
-        {
-            var userCart = await UserCartDetailsFactory.Create(DbContext,userId, cancellationToken);
-
-            return userCart != null
-                ? Result.Ok(userCart)
-                : Result.Error<UserCart>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
-        }
+        return userCart != null
+            ? Result.Ok(userCart)
+            : Result.Error<UserCart>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
     }
 }

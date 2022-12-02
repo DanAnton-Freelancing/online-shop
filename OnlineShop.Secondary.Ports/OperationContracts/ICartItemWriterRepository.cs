@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 
-namespace OnlineShop.Secondary.Ports.OperationContracts
+namespace OnlineShop.Secondary.Ports.OperationContracts;
+
+public interface ICartItemWriterRepository : IBaseWriterRepository<CartItem>
 {
-    public interface ICartItemWriterRepository : IBaseWriterRepository<CartItem>
-    {
-        Task<Result<CartItem>> GetWithDetailsAsync(Guid id, CancellationToken cancellationToken);
-    }
+    Task<Result<CartItem>> GetWithDetailsAsync(Guid id, CancellationToken cancellationToken);
 }

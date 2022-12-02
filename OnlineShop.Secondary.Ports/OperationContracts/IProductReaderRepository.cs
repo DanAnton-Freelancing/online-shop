@@ -1,6 +1,5 @@
 ﻿using OnlineShop.Secondary.Ports.DataContracts;
 
-namespace OnlineShop.Secondary.Ports.OperationContracts
-{
-    public interface IProductReaderRepository : IBaseReaderRepository<Product> { }
-}
+namespace OnlineShop.Secondary.Ports.OperationContracts;
+
+public interface IProductReaderRepository : IBaseReaderRepository<Product> { }

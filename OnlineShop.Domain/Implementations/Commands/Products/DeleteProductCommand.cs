@@ -7,23 +7,22 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Extensions;
 
-namespace OnlineShop.Domain.Implementations.Commands.Products
+namespace OnlineShop.Domain.Implementations.Commands.Products;
+
+public class DeleteProductCommand : IDeleteProductCommand
 {
-    public class DeleteProductCommand : IDeleteProductCommand
+    public Guid Id { get; set; }
+
+    public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, Result>
     {
-        public Guid Id { get; set; }
+        private readonly IProductWriterRepository _productWriterRepository;
+        public DeleteProductCommandHandler(IProductWriterRepository productWriterRepository)
+            => _productWriterRepository = productWriterRepository;
 
-        public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, Result>
-        {
-            private readonly IProductWriterRepository _productWriterRepository;
-            public DeleteProductCommandHandler(IProductWriterRepository productWriterRepository)
-                => _productWriterRepository = productWriterRepository;
-
-            public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
-                => await _productWriterRepository.GetOneAsync(p => p.Id == request.Id, cancellationToken)
-                                                 .AndAsync(p => _productWriterRepository.CheckIfIsUsedAsync(p.Id.GetValueOrDefault(),cancellationToken))
-                                                 .AndAsync(() => _productWriterRepository.DeleteAsync(request.Id, cancellationToken))
-                                                 .RemoveDataAsync();
-        }
+        public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+            => await _productWriterRepository.GetOneAsync(p => p.Id == request.Id, cancellationToken)
+                .AndAsync(p => _productWriterRepository.CheckIfIsUsedAsync(p.Id.GetValueOrDefault(),cancellationToken))
+                .AndAsync(() => _productWriterRepository.DeleteAsync(request.Id, cancellationToken))
+                .RemoveDataAsync();
     }
 }

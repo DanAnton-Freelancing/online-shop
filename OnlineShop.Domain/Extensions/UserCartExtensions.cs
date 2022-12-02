@@ -4,57 +4,56 @@ using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 
-namespace OnlineShop.Domain.Extensions
+namespace OnlineShop.Domain.Extensions;
+
+public static class UserCartExtensions
 {
-    public static class UserCartExtensions
+    public static Result Hidrate(this CartItem cartItem, Product p)
     {
-        public static Result Hidrate(this CartItem cartItem, Product p)
-        {
-            cartItem.Price = p.Price.GetValueOrDefault() * (decimal) cartItem.Quantity;
-            return Result.Ok();
-        }
+        cartItem.Price = p.Price.GetValueOrDefault() * (decimal) cartItem.Quantity;
+        return Result.Ok();
+    }
 
-        public static Result<User> AddUserCart(this User user)
-        {
-            user.UserCart = new UserCart();
-            return Result.Ok(user);
-        }
+    public static Result<User> AddUserCart(this User user)
+    {
+        user.UserCart = new UserCart();
+        return Result.Ok(user);
+    }
 
-        public static Result<UserCart> AddCartItem(this UserCart userCart, CartItem item)
-        {
-            var cartItems = userCart.CartItems;
+    public static Result<UserCart> AddCartItem(this UserCart userCart, CartItem item)
+    {
+        var cartItems = userCart.CartItems;
 
-            if (cartItems != null) {
-                var existingProduct = cartItems.Find(ci => ci.ProductId.Equals(item.ProductId));
+        if (cartItems != null) {
+            var existingProduct = cartItems.Find(ci => ci.ProductId.Equals(item.ProductId));
 
-                if (existingProduct != null) {
-                    existingProduct.Quantity += item.Quantity;
-                    existingProduct.Price += item.Price;
-                }
-                else {
-                    item.UserCartId = userCart.Id.GetValueOrDefault();
-                    userCart.CartItems.Add(item);
-                }
+            if (existingProduct != null) {
+                existingProduct.Quantity += item.Quantity;
+                existingProduct.Price += item.Price;
             }
             else {
-                userCart.CartItems = new List<CartItem> {item};
+                item.UserCartId = userCart.Id.GetValueOrDefault();
+                userCart.CartItems.Add(item);
             }
-
-            return Result.Ok(userCart);
+        }
+        else {
+            userCart.CartItems = new List<CartItem> {item};
         }
 
-        public static Result<CartItem> UpdateCartItem(this CartItem cartItem, double quantity)
-        {
-            if (cartItem.Quantity.Equals(quantity))
-                return Result.Error<CartItem>(HttpStatusCode.NotModified, "[NotChanged]", ErrorMessages.NotChanged);
+        return Result.Ok(userCart);
+    }
 
-            if (quantity > (double?) cartItem.Product.AvailableQuantity + cartItem.Quantity)
-                return Result.Error<CartItem>(HttpStatusCode.BadRequest, "[QuantityExceeded]",
-                                              string.Format(ErrorMessages.QuantityExceeded,
-                                                            cartItem.Product.AvailableQuantity));
-            cartItem.Quantity = quantity;
-            cartItem.Price = (decimal) quantity * cartItem.Product.Price.GetValueOrDefault();
-            return Result.Ok(cartItem);
-        }
+    public static Result<CartItem> UpdateCartItem(this CartItem cartItem, double quantity)
+    {
+        if (cartItem.Quantity.Equals(quantity))
+            return Result.Error<CartItem>(HttpStatusCode.NotModified, "[NotChanged]", ErrorMessages.NotChanged);
+
+        if (quantity > (double?) cartItem.Product.AvailableQuantity + cartItem.Quantity)
+            return Result.Error<CartItem>(HttpStatusCode.BadRequest, "[QuantityExceeded]",
+                string.Format(ErrorMessages.QuantityExceeded,
+                    cartItem.Product.AvailableQuantity));
+        cartItem.Quantity = quantity;
+        cartItem.Price = (decimal) quantity * cartItem.Product.Price.GetValueOrDefault();
+        return Result.Ok(cartItem);
     }
 }

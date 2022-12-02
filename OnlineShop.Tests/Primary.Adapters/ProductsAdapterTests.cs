@@ -15,87 +15,86 @@ using Amazon.S3;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Products;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Queries;
 
-namespace OnlineShop.Tests.Primary.Adapters
+namespace OnlineShop.Tests.Primary.Adapters;
+
+[TestClass]
+public class ProductsAdapterTests : BaseTests
 {
-    [TestClass]
-    public class ProductsAdapterTests : BaseTests
+    private secondaryPorts.Product _firstProduct;
+    private List<secondaryPorts.Product> _products;
+    private ProductsAdapter _productsAdapter;
+    private Mock<IAmazonS3> _s3ClientMock;
+
+    [TestInitialize]
+    public override void Initialize()
     {
-        private secondaryPorts.Product _firstProduct;
-        private List<secondaryPorts.Product> _products;
-        private ProductsAdapter _productsAdapter;
-        private Mock<IAmazonS3> _s3ClientMock;
+        base.Initialize();
+        _s3ClientMock = new Mock<IAmazonS3>();
+        _products = ProductFactory.Create();
+        _productsAdapter = new ProductsAdapter(MediatorMock.Object, _s3ClientMock.Object);
+        _firstProduct = _products.First().ToEntity();
+    }
 
-        [TestInitialize]
-        public override void Initialize()
-        {
-            base.Initialize();
-            _s3ClientMock = new Mock<IAmazonS3>();
-            _products = ProductFactory.Create();
-            _productsAdapter = new ProductsAdapter(MediatorMock.Object, _s3ClientMock.Object);
-            _firstProduct = _products.First().ToEntity();
-        }
+    [TestMethod]
+    public async Task WhenGetAsyncProducts_ThenShouldReturnProducts()
+    {
+        //Arrange
+        MediatorMock.Setup(m => m.Send(It.IsAny<IGetProductsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(_products));
 
-        [TestMethod]
-        public async Task WhenGetAsyncProducts_ThenShouldReturnProducts()
-        {
-            //Arrange
-            MediatorMock.Setup(m => m.Send(It.IsAny<IGetProductsQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result.Ok(_products));
+        //Act
+        var result = await _productsAdapter.GetAllAsync(CancellationToken.None);
 
-            //Act
-            var result = await _productsAdapter.GetAllAsync(CancellationToken.None);
+        //Assert
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Product>.AreListsEqual(result.Data, _products.MapToPrimary()));
+    }
 
-            //Assert
-            Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Product>.AreListsEqual(result.Data, _products.MapToPrimary()));
-        }
+    [TestMethod]
+    public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
+    {
+        //Arrange
+        var locationIds = _products.Select(l => l.Id.GetValueOrDefault()).FirstOrDefault();
 
-        [TestMethod]
-        public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
-        {
-            //Arrange
-            var locationIds = _products.Select(l => l.Id.GetValueOrDefault()).FirstOrDefault();
+        MediatorMock.Setup(m => m.Send(It.IsAny<IAddProductsCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(locationIds));
 
-            MediatorMock.Setup(m => m.Send(It.IsAny<IAddProductsCommand>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok(locationIds));
+        var upsertProduct = ProductFactory.CreateUpsertModels().FirstOrDefault();
 
-            var upsertProduct = ProductFactory.CreateUpsertModels().FirstOrDefault();
+        //Act
+        var result = await _productsAdapter.InsertAsync(upsertProduct, CancellationToken.None);
 
-            //Act
-            var result = await _productsAdapter.InsertAsync(upsertProduct, CancellationToken.None);
+        //Assert
+        Assert.AreEqual(locationIds, result.Data);
+    }
 
-            //Assert
-            Assert.AreEqual(locationIds, result.Data);
-        }
+    [TestMethod]
+    public async Task GivenProductAndId_WhenUpdateAsync_ThenShouldReturnId()
+    {
+        //Arrange
+        var upsertCategory = ProductFactory.CreateUpsertModel();
 
-        [TestMethod]
-        public async Task GivenProductAndId_WhenUpdateAsync_ThenShouldReturnId()
-        {
-            //Arrange
-            var upsertCategory = ProductFactory.CreateUpsertModel();
+        MediatorMock.Setup(ls => ls.Send(It.IsAny<IUpdateProductCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_firstProduct.Id.GetValueOrDefault()));
 
-            MediatorMock.Setup(ls => ls.Send(It.IsAny<IUpdateProductCommand>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok(_firstProduct.Id.GetValueOrDefault()));
+        //Act
+        var result = await _productsAdapter.UpdateAsync(_firstProduct.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
 
-            //Act
-            var result = await _productsAdapter.UpdateAsync(_firstProduct.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
+        //Assert
+        Assert.AreEqual(_firstProduct.Id.GetValueOrDefault(), result.Data);
+    }
 
-            //Assert
-            Assert.AreEqual(_firstProduct.Id.GetValueOrDefault(), result.Data);
-        }
+    [TestMethod]
+    public async Task GivenProductId_WhenDeleteAsync_ThenShouldReturnOk()
+    {
+        //Arrange
 
-        [TestMethod]
-        public async Task GivenProductId_WhenDeleteAsync_ThenShouldReturnOk()
-        {
-            //Arrange
+        MediatorMock.Setup(ls => ls.Send(It.IsAny<IDeleteProductCommand>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
 
-            MediatorMock.Setup(ls => ls.Send(It.IsAny<IDeleteProductCommand>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok());
+        //Act
+        var result = await _productsAdapter.DeleteAsync(_firstProduct.Id.GetValueOrDefault(),CancellationToken.None);
 
-            //Act
-            var result = await _productsAdapter.DeleteAsync(_firstProduct.Id.GetValueOrDefault(),CancellationToken.None);
-
-            //Assert
-            Assert.IsTrue(result.Success);
-        }
+        //Assert
+        Assert.IsTrue(result.Success);
     }
 }

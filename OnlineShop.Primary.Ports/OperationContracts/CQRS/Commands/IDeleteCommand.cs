@@ -2,10 +2,9 @@
 using MediatR;
 using OnlineShop.Shared.Ports.DataContracts;
 
-namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands
+namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands;
+
+public interface IDeleteCommand : IRequest<Result>
 {
-    public interface IDeleteCommand : IRequest<Result>
-    {
-        Guid Id { get; set; }
-    }
+    Guid Id { get; set; }
 }

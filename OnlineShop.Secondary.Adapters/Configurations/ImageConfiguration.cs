@@ -3,14 +3,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OnlineShop.Secondary.Adapters.Extensions;
 using OnlineShop.Secondary.Ports.DataContracts;
 
-namespace OnlineShop.Secondary.Adapters.Configurations
+namespace OnlineShop.Secondary.Adapters.Configurations;
+
+public class ImageConfiguration : IEntityTypeConfiguration<Image>
 {
-    public class ImageConfiguration : IEntityTypeConfiguration<Image>
+    public void Configure(EntityTypeBuilder<Image> entityBuilder)
     {
-        public void Configure(EntityTypeBuilder<Image> entityBuilder)
-        {
-            entityBuilder.ToTable(nameof(Image));
-            entityBuilder.AddDefaultConfigsForDbEntity();
-        }
+        entityBuilder.ToTable(nameof(Image));
+        entityBuilder.AddDefaultConfigsForDbEntity();
     }
 }

@@ -10,43 +10,42 @@ using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
 
-namespace OnlineShop.Tests.Domain.Queries
+namespace OnlineShop.Tests.Domain.Queries;
+
+[TestClass]
+public class GetUserCartQueryTests : BaseTests
 {
-    [TestClass]
-    public class GetUserCartQueryTests : BaseTests
+    private Mock<IUserCartReaderRepository> _userCartReaderRepositoryMock;
+    private UserCart _userCart;
+
+    private GetUserCartQuery.GetUserCartQueryHandler _getUserCartQueryHandler;
+
+    [TestInitialize]
+    public override void Initialize()
     {
-        private Mock<IUserCartReaderRepository> _userCartReaderRepositoryMock;
-        private UserCart _userCart;
+        base.Initialize();
+        _userCart = UserFactory.CreateUserCart();
+        _userCartReaderRepositoryMock = new Mock<IUserCartReaderRepository>(MockBehavior.Strict) {CallBase = true};
+        _getUserCartQueryHandler =
+            new GetUserCartQuery.GetUserCartQueryHandler(_userCartReaderRepositoryMock.Object);
 
-        private GetUserCartQuery.GetUserCartQueryHandler _getUserCartQueryHandler;
+    }
 
-        [TestInitialize]
-        public override void Initialize()
+
+    [TestMethod]
+    public async Task GivenUserId_WhenGetWithDetailsAsync_ThenShouldReturnUserWithDetails()
+    {
+        //Arrange
+        _userCartReaderRepositoryMock.Setup(uc => uc.GetWithDetailsAsync(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_userCart));
+
+        //Act
+        var actualResult = await _getUserCartQueryHandler.Handle(new GetUserCartQuery
         {
-            base.Initialize();
-            _userCart = UserFactory.CreateUserCart();
-            _userCartReaderRepositoryMock = new Mock<IUserCartReaderRepository>(MockBehavior.Strict) {CallBase = true};
-            _getUserCartQueryHandler =
-                new GetUserCartQuery.GetUserCartQueryHandler(_userCartReaderRepositoryMock.Object);
+            userId = _userCart.Id.GetValueOrDefault()
+        },CancellationToken.None);
 
-        }
-
-
-        [TestMethod]
-        public async Task GivenUserId_WhenGetWithDetailsAsync_ThenShouldReturnUserWithDetails()
-        {
-            //Arrange
-            _userCartReaderRepositoryMock.Setup(uc => uc.GetWithDetailsAsync(It.IsAny<Guid>(), CancellationToken.None))
-                                         .ReturnsAsync(Result.Ok(_userCart));
-
-            //Act
-            var actualResult = await _getUserCartQueryHandler.Handle(new GetUserCartQuery
-                {
-                    userId = _userCart.Id.GetValueOrDefault()
-                },CancellationToken.None);
-
-            //Assert
-            Assert.IsTrue(EntitiesAssertionsUtils<UserCart>.AreEntriesEqual(_userCart, actualResult.Data));
-        }
+        //Assert
+        Assert.IsTrue(EntitiesAssertionsUtils<UserCart>.AreEntriesEqual(_userCart, actualResult.Data));
     }
 }

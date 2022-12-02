@@ -14,111 +14,110 @@ using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 using OnlineShop.Tests.Factories;
 
-namespace OnlineShop.Tests.Domain.Commands.Products
+namespace OnlineShop.Tests.Domain.Commands.Products;
+
+[TestClass]
+public class DeleteProductCommandTests : BaseCommandTests<Product, IProductWriterRepository>
 {
-    [TestClass]
-    public class DeleteProductCommandTests : BaseCommandTests<Product, IProductWriterRepository>
+    private DeleteProductCommand.DeleteProductCommandHandler _deleteProductCommandHandler;
+
+    [TestInitialize]
+    public override void Initialize()
     {
-        private DeleteProductCommand.DeleteProductCommandHandler _deleteProductCommandHandler;
+        base.Initialize();
+        _deleteProductCommandHandler =
+            new DeleteProductCommand.DeleteProductCommandHandler(WriterRepositoryMock.Object);
+        Entities = ProductFactory.Create();
+    }
 
-        [TestInitialize]
-        public override void Initialize()
+    [TestMethod]
+    public async Task GivenProductId_WhenDeleteAsync_ThenShouldReturnOk()
+    {
+        //Arrange
+        var upsertProduct = ProductFactory.CreateUpsert();
+
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
+            .ReturnsAsync(Result.Ok(upsertProduct));
+
+        WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
+
+        WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
+        //Act
+        var result = await _deleteProductCommandHandler.Handle(new DeleteProductCommand
         {
-            base.Initialize();
-            _deleteProductCommandHandler =
-                new DeleteProductCommand.DeleteProductCommandHandler(WriterRepositoryMock.Object);
-            Entities = ProductFactory.Create();
-        }
+            Id = upsertProduct.Id.GetValueOrDefault()
+        }, CancellationToken.None);
 
-        [TestMethod]
-        public async Task GivenProductId_WhenDeleteAsync_ThenShouldReturnOk()
+        //Assert
+        Assert.IsTrue(result.Success);
+    }
+
+
+    [TestMethod]
+    public async Task GivenWrongProductId_WhenDeleteAsync_ThenShouldReturnError()
+    {
+        //Arrange
+        var upsertProduct = ProductFactory.CreateUpsert();
+        var error = Result.Error<Product>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
+
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
+            .ReturnsAsync(error);
+
+        WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
+        WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
+        //Act
+        var result = await _deleteProductCommandHandler.Handle(new DeleteProductCommand
         {
-            //Arrange
-            var upsertProduct = ProductFactory.CreateUpsert();
+            Id = upsertProduct.Id.GetValueOrDefault()
+        }, CancellationToken.None);
 
-            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
-                    CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
-                .ReturnsAsync(Result.Ok(upsertProduct));
-
-            WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok());
+        //Assert
+        Assert.IsTrue(result.HasErrors);
+        Assert.AreEqual(result.ErrorMessage, error.ErrorMessage);
+        Assert.AreEqual(result.HttpStatusCode, error.HttpStatusCode);
+    }
 
 
-            WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok());
+    [TestMethod]
+    public async Task GivenInUseProductId_WhenDeleteAsync_ThenShouldReturnError()
+    {
+        //Arrange
+        var upsertProduct = ProductFactory.CreateUpsert();
+        var error = Result.Error<Product>(HttpStatusCode.BadRequest, "[InUseNotDeleted]", ErrorMessages.InUseNotDeleted);
 
-            //Act
-            var result = await _deleteProductCommandHandler.Handle(new DeleteProductCommand
-            {
-                Id = upsertProduct.Id.GetValueOrDefault()
-            }, CancellationToken.None);
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
+            .ReturnsAsync(Result.Ok(upsertProduct));
 
-            //Assert
-            Assert.IsTrue(result.Success);
-        }
+        WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(error);
 
 
-        [TestMethod]
-        public async Task GivenWrongProductId_WhenDeleteAsync_ThenShouldReturnError()
+        WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
+        //Act
+        var result = await _deleteProductCommandHandler.Handle(new DeleteProductCommand
         {
-            //Arrange
-            var upsertProduct = ProductFactory.CreateUpsert();
-            var error = Result.Error<Product>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
+            Id = upsertProduct.Id.GetValueOrDefault()
+        }, CancellationToken.None);
 
-            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
-                    CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
-                .ReturnsAsync(error);
-
-            WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok());
-
-            WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok());
-
-            //Act
-            var result = await _deleteProductCommandHandler.Handle(new DeleteProductCommand
-            {
-                Id = upsertProduct.Id.GetValueOrDefault()
-            }, CancellationToken.None);
-
-            //Assert
-            Assert.IsTrue(result.HasErrors);
-            Assert.AreEqual(result.ErrorMessage, error.ErrorMessage);
-            Assert.AreEqual(result.HttpStatusCode, error.HttpStatusCode);
-        }
-
-
-        [TestMethod]
-        public async Task GivenInUseProductId_WhenDeleteAsync_ThenShouldReturnError()
-        {
-            //Arrange
-            var upsertProduct = ProductFactory.CreateUpsert();
-            var error = Result.Error<Product>(HttpStatusCode.BadRequest, "[InUseNotDeleted]", ErrorMessages.InUseNotDeleted);
-
-            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
-                    CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                    It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
-                .ReturnsAsync(Result.Ok(upsertProduct));
-
-            WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
-                .ReturnsAsync(error);
-
-
-            WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok());
-
-            //Act
-            var result = await _deleteProductCommandHandler.Handle(new DeleteProductCommand
-            {
-                Id = upsertProduct.Id.GetValueOrDefault()
-            }, CancellationToken.None);
-
-            //Assert
-            Assert.IsTrue(result.HasErrors);
-            Assert.AreEqual(result.ErrorMessage, error.ErrorMessage);
-            Assert.AreEqual(result.HttpStatusCode, error.HttpStatusCode);
-        }
+        //Assert
+        Assert.IsTrue(result.HasErrors);
+        Assert.AreEqual(result.ErrorMessage, error.ErrorMessage);
+        Assert.AreEqual(result.HttpStatusCode, error.HttpStatusCode);
     }
 }

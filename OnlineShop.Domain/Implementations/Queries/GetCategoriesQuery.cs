@@ -7,20 +7,19 @@ using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 
-namespace OnlineShop.Domain.Implementations.Queries
+namespace OnlineShop.Domain.Implementations.Queries;
+
+public class GetCategoriesQuery : IGetCategoriesQuery
 {
-    public class GetCategoriesQuery : IGetCategoriesQuery
+    public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, Result<List<Category>>>
     {
-        public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, Result<List<Category>>>
-        {
-            private readonly ICategoryReaderRepository _categoryReaderRepository;
+        private readonly ICategoryReaderRepository _categoryReaderRepository;
 
-            public GetCategoriesQueryHandler(ICategoryReaderRepository categoryReaderRepository)
-                => _categoryReaderRepository = categoryReaderRepository;
+        public GetCategoriesQueryHandler(ICategoryReaderRepository categoryReaderRepository)
+            => _categoryReaderRepository = categoryReaderRepository;
 
-            public async Task<Result<List<Category>>> Handle(GetCategoriesQuery request,
-                CancellationToken cancellationToken)
-                => await _categoryReaderRepository.GetAsync(cancellationToken);
-        }
+        public async Task<Result<List<Category>>> Handle(GetCategoriesQuery request,
+            CancellationToken cancellationToken)
+            => await _categoryReaderRepository.GetAsync(cancellationToken);
     }
 }

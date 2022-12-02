@@ -9,39 +9,38 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Factories;
 
-namespace OnlineShop.Tests.Domain.Commands.Products
+namespace OnlineShop.Tests.Domain.Commands.Products;
+
+[TestClass]
+public class AddProductsCommandTests : BaseCommandTests<Product, IProductWriterRepository>
 {
-    [TestClass]
-    public class AddProductsCommandTests : BaseCommandTests<Product, IProductWriterRepository>
+    private AddProductsCommand.AddProductsCommandHandler _addProductsCommandHandler;
+
+    [TestInitialize]
+    public override void Initialize()
     {
-        private AddProductsCommand.AddProductsCommandHandler _addProductsCommandHandler;
+        base.Initialize();
+        _addProductsCommandHandler = new AddProductsCommand.AddProductsCommandHandler(WriterRepositoryMock.Object);
+        Entities = ProductFactory.Create();
+        Entities.ForEach(p => p.ToEntity());
+    }
 
-        [TestInitialize]
-        public override void Initialize()
+    [TestMethod]
+    public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
+    {
+        //Arrange
+        var productIds = Entities.Select(l => l.Id.GetValueOrDefault()).First();
+
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(),CancellationToken.None))
+            .ReturnsAsync(Result.Ok(productIds));
+
+        //Act
+        var result = await _addProductsCommandHandler.Handle(new AddProductsCommand
         {
-            base.Initialize();
-            _addProductsCommandHandler = new AddProductsCommand.AddProductsCommandHandler(WriterRepositoryMock.Object);
-            Entities = ProductFactory.Create();
-            Entities.ForEach(p => p.ToEntity());
-        }
+            Data = Entities.First()
+        }, CancellationToken.None);
 
-        [TestMethod]
-        public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
-        {
-            //Arrange
-            var productIds = Entities.Select(l => l.Id.GetValueOrDefault()).First();
-
-            WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(),CancellationToken.None))
-                .ReturnsAsync(Result.Ok(productIds));
-
-            //Act
-            var result = await _addProductsCommandHandler.Handle(new AddProductsCommand
-            {
-                Data = Entities.First()
-            }, CancellationToken.None);
-
-            //Assert
-            Assert.AreEqual(productIds, result.Data);
-        }
+        //Assert
+        Assert.AreEqual(productIds, result.Data);
     }
 }

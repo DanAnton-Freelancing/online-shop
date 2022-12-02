@@ -12,46 +12,45 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Factories;
 
-namespace OnlineShop.Tests.Domain.Commands.Categories
+namespace OnlineShop.Tests.Domain.Commands.Categories;
+
+[TestClass]
+public class UpdateCategoryCommandTests : BaseCommandTests<Category, ICategoryWriterRepository>
 {
-    [TestClass]
-    public class UpdateCategoryCommandTests : BaseCommandTests<Category, ICategoryWriterRepository>
+
+    private Category _firstCategory;
+    private UpdateCategoryCommand.UpdateCategoryCommandHandler _updateProductsCommandHandler;
+
+    [TestInitialize]
+    public override void Initialize()
     {
+        base.Initialize();
+        _updateProductsCommandHandler = new UpdateCategoryCommand.UpdateCategoryCommandHandler(WriterRepositoryMock.Object);
+        Entities = CategoryFactory.Create();
+        _firstCategory = Entities.First().ToEntity();
+    }
 
-        private Category _firstCategory;
-        private UpdateCategoryCommand.UpdateCategoryCommandHandler _updateProductsCommandHandler;
-
-        [TestInitialize]
-        public override void Initialize()
-        {
-            base.Initialize();
-            _updateProductsCommandHandler = new UpdateCategoryCommand.UpdateCategoryCommandHandler(WriterRepositoryMock.Object);
-            Entities = CategoryFactory.Create();
-            _firstCategory = Entities.First().ToEntity();
-        }
-
-        [TestMethod]
-        public async Task GivenCategoryAndId_WhenUpdateAsync_ThenShouldReturnId()
-        {
-            //Arrange
+    [TestMethod]
+    public async Task GivenCategoryAndId_WhenUpdateAsync_ThenShouldReturnId()
+    {
+        //Arrange
             
-            WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Category>(), CancellationToken.None))
-                .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Category>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
 
-            WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Category, bool>>>(),
-                    CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
-                    It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
-                .ReturnsAsync(Result.Ok(_firstCategory));
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Category, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
+                It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
+            .ReturnsAsync(Result.Ok(_firstCategory));
             
-            //Act
-            var result = await _updateProductsCommandHandler.Handle(new UpdateCategoryCommand
-            {
-                Data = _firstCategory,
-                Id = _firstCategory.Id.GetValueOrDefault()
-            }, CancellationToken.None);
+        //Act
+        var result = await _updateProductsCommandHandler.Handle(new UpdateCategoryCommand
+        {
+            Data = _firstCategory,
+            Id = _firstCategory.Id.GetValueOrDefault()
+        }, CancellationToken.None);
 
-            //Assert
-            Assert.AreEqual(_firstCategory.Id, result.Data);
-        }
+        //Assert
+        Assert.AreEqual(_firstCategory.Id, result.Data);
     }
 }
