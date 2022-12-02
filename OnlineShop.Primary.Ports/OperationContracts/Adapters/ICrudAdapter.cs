@@ -14,7 +14,7 @@ namespace OnlineShop.Primary.Ports.OperationContracts.Adapters
         Task<Result<List<T>>> GetAllAsync(CancellationToken cancellationToken);
 
         Task<Result<List<Guid>>> InsertAsync(List<TI> entities, CancellationToken cancellationToken);
-
+        Task<Result<Guid>> InsertAsync(TI entity, CancellationToken cancellationToken);
         Task<Result<Guid>> UpdateAsync(Guid id,
             TI entity, CancellationToken cancellationToken);
 

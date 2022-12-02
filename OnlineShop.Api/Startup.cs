@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -49,7 +48,7 @@ namespace OnlineShop.Api
                                                                     };
                                   });
             services.AddSecondaryAdapters(appSettings.ConnectionString);
-            services.AddPrimaryAdapters(appSettings.Secret);
+            services.AddPrimaryAdapters(appSettings.Secret, Configuration);
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddSwagger();
         }

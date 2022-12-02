@@ -25,6 +25,11 @@ namespace OnlineShop.Primary.Adapters.Implementation
         public override async Task<Result<List<Guid>>> InsertAsync(List<UpsertCategory> entities, CancellationToken cancellationToken)
             => await Mediator.Send(new AddCategoriesCommand { Data = entities.MapToSecondary() }, cancellationToken);
 
+        public override Task<Result<Guid>> InsertAsync(UpsertCategory entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public override async Task<Result<Guid>> UpdateAsync(Guid id, UpsertCategory entity, CancellationToken cancellationToken)
             => await Mediator.Send(new UpdateCategoryCommand { Data = entity.MapToSecondary(), Id = id }, cancellationToken);
 

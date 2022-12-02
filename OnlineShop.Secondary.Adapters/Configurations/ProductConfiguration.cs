@@ -24,6 +24,9 @@ namespace OnlineShop.Secondary.Adapters.Configurations
             entityBuilder.HasOne(p => p.Category)
                          .WithMany(c => c.Products)
                          .IsRequired();
+
+            entityBuilder.HasMany(p => p.Images);
+
             entityBuilder.AddDefaultConfigsForDbEntity();
         }
     }

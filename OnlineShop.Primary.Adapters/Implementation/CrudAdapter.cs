@@ -17,6 +17,7 @@ namespace OnlineShop.Primary.Adapters.Implementation
         public abstract Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken);
         public abstract Task<Result<List<T>>> GetAllAsync(CancellationToken cancellationToken);
         public abstract Task<Result<List<Guid>>> InsertAsync(List<TI> entities, CancellationToken cancellationToken);
+        public abstract Task<Result<Guid>> InsertAsync(TI entity, CancellationToken cancellationToken);
         public abstract Task<Result<Guid>> UpdateAsync(Guid id, TI entity, CancellationToken cancellationToken);
     }
 }

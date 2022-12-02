@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -30,15 +29,15 @@ namespace OnlineShop.Tests.Domain.Commands.Products
         public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
         {
             //Arrange
-            var productIds = Entities.Select(l => l.Id.GetValueOrDefault()).ToList();
+            var productIds = Entities.Select(l => l.Id.GetValueOrDefault()).First();
 
-            WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<List<Product>>(),CancellationToken.None))
+            WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(),CancellationToken.None))
                 .ReturnsAsync(Result.Ok(productIds));
 
             //Act
             var result = await _addProductsCommandHandler.Handle(new AddProductsCommand
             {
-                Data = Entities
+                Data = Entities.First()
             }, CancellationToken.None);
 
             //Assert

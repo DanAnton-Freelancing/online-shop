@@ -23,21 +23,32 @@ namespace OnlineShop.Primary.Adapters.Mappers
                    Price = product.Price.GetValueOrDefault(),
                    AvailableQuantity = product.AvailableQuantity.GetValueOrDefault(),
                    IsAvailable = product.AvailableQuantity > 0,
-                   CategoryId = product.CategoryId
+                   CategoryId = product.CategoryId,
+                   Description = product.Description
                };
 
         public static List<secondaryPorts.Product> MapToSecondary(this IList<primaryPorts.UpsertProduct> products)
             => products.Select(r => r.MapToUpsertSecondary())
                        .ToList();
 
-        public static secondaryPorts.Product MapToSecondary(this primaryPorts.UpsertProduct upsertProduct)
+        public static secondaryPorts.Product MapToSecondary(this primaryPorts.UpsertProduct upsertProduct, IList<string> imagesKeys)
             => new()
             {
                    Name = upsertProduct.Name,
                    Price = upsertProduct.Price,
                    AvailableQuantity = upsertProduct.AvailableQuantity,
-                   CategoryId = upsertProduct.CategoryId
+                   CategoryId = upsertProduct.CategoryId,
+                   Description = upsertProduct.Description,
+                   Images = imagesKeys.Select(i => new secondaryPorts.Image { Key = i }).ToList()
                };
+        public static secondaryPorts.Product MapToSecondary(this primaryPorts.UpsertProduct upsertProduct)
+            => new()
+            {
+                Name = upsertProduct.Name,
+                Price = upsertProduct.Price,
+                AvailableQuantity = upsertProduct.AvailableQuantity,
+                CategoryId = upsertProduct.CategoryId
+            };
 
         private static secondaryPorts.Product MapToUpsertSecondary(this primaryPorts.UpsertProduct upsertProduct)
             => new()
@@ -46,6 +57,7 @@ namespace OnlineShop.Primary.Adapters.Mappers
                    Price = upsertProduct.Price,
                    AvailableQuantity = upsertProduct.AvailableQuantity,
                    CategoryId = upsertProduct.CategoryId,
+                   Description = upsertProduct.Description,
                    Code = RandomString()
                };
 

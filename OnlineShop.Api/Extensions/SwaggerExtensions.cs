@@ -37,7 +37,7 @@ namespace OnlineShop.Api.Extensions
                                                                                    Id = "Bearer"
                                                                                }
                                                                            },
-                                                                           new string[] {}
+                                                                           System.Array.Empty<string>()
                                                                        }
                                                                    });
                                    });

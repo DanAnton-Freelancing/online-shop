@@ -11,6 +11,7 @@ using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
 using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 using System.Threading.Tasks;
 using System.Threading;
+using Amazon.S3;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Products;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Queries;
 
@@ -22,13 +23,15 @@ namespace OnlineShop.Tests.Primary.Adapters
         private secondaryPorts.Product _firstProduct;
         private List<secondaryPorts.Product> _products;
         private ProductsAdapter _productsAdapter;
+        private Mock<IAmazonS3> _s3ClientMock;
 
         [TestInitialize]
         public override void Initialize()
         {
             base.Initialize();
+            _s3ClientMock = new Mock<IAmazonS3>();
             _products = ProductFactory.Create();
-            _productsAdapter = new ProductsAdapter(MediatorMock.Object);
+            _productsAdapter = new ProductsAdapter(MediatorMock.Object, _s3ClientMock.Object);
             _firstProduct = _products.First().ToEntity();
         }
 
@@ -50,15 +53,15 @@ namespace OnlineShop.Tests.Primary.Adapters
         public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
         {
             //Arrange
-            var locationIds = _products.Select(l => l.Id.GetValueOrDefault()).ToList();
+            var locationIds = _products.Select(l => l.Id.GetValueOrDefault()).FirstOrDefault();
 
             MediatorMock.Setup(m => m.Send(It.IsAny<IAddProductsCommand>(), CancellationToken.None))
                 .ReturnsAsync(Result.Ok(locationIds));
 
-            var upsertCategories = ProductFactory.CreateUpsertModels();
+            var upsertProduct = ProductFactory.CreateUpsertModels().FirstOrDefault();
 
             //Act
-            var result = await _productsAdapter.InsertAsync(upsertCategories, CancellationToken.None);
+            var result = await _productsAdapter.InsertAsync(upsertProduct, CancellationToken.None);
 
             //Assert
             Assert.AreEqual(locationIds, result.Data);

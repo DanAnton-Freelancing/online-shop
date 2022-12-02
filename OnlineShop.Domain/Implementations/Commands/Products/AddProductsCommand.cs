@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -12,9 +11,9 @@ namespace OnlineShop.Domain.Implementations.Commands.Products
 {
     public class AddProductsCommand : IAddProductsCommand
     {
-        public List<Product> Data { get; set; }
-
-        public class AddProductsCommandHandler : IRequestHandler<AddProductsCommand, Result<List<Guid>>>
+        public Product Data { get; set; }
+        
+        public class AddProductsCommandHandler : IRequestHandler<AddProductsCommand, Result<Guid>>
         {
             private readonly IProductWriterRepository _productWriterRepository;
 
@@ -24,8 +23,7 @@ namespace OnlineShop.Domain.Implementations.Commands.Products
                 _productWriterRepository = productWriterRepository;
             }
 
-            public async Task<Result<List<Guid>>> Handle(AddProductsCommand request,
-                CancellationToken cancellationToken)
+            public async Task<Result<Guid>> Handle(AddProductsCommand request, CancellationToken cancellationToken) 
                 => await _productWriterRepository.SaveAsync(request.Data, cancellationToken);
         }
     }

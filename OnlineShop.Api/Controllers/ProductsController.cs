@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +25,7 @@ namespace OnlineShop.Api.Controllers
                                      .ToAsyncActionResult();
 
         [HttpPost]
-        public async Task<ActionResult> InsertAsync([FromBody] List<UpsertProduct> product, CancellationToken cancellationToken)
+        public async Task<ActionResult> InsertAsync([FromForm] UpsertProduct product, CancellationToken cancellationToken)
             => await _productsAdapter.InsertAsync(product, cancellationToken)
                                      .ToAsyncActionResult();
 

@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using Amazon.S3;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineShop.Domain;
 using OnlineShop.Primary.Adapters.Implementation;
@@ -9,7 +11,7 @@ namespace OnlineShop.Primary.Adapters
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddPrimaryAdapters(this IServiceCollection services, string secret)
+        public static void AddPrimaryAdapters(this IServiceCollection services, string secret, IConfiguration configuration)
         {
             services.RegisterAllTypes(new[]
                                       {
@@ -17,6 +19,9 @@ namespace OnlineShop.Primary.Adapters
                                       });
             services.AddDomain(secret);
             services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            services.AddDefaultAWSOptions(configuration.GetAWSOptions());
+            services.AddAWSService<IAmazonS3>();
         }
     }
 }
