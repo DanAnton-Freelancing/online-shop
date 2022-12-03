@@ -6,14 +6,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Categories;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Factories;
 
 namespace OnlineShop.Tests.Domain.Commands.Categories;
 
 [TestClass]
-public class AddCategoriesCommandTests : BaseCommandTests<Category, ICategoryWriterRepository>
+public class AddCategoriesCommandTests : BaseCommandTests<Category>
 {
     private AddCategoriesCommand.AddCategoriesCommandHandler _addProductsCommandHandler;
 

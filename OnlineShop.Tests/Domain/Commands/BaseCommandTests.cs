@@ -7,17 +7,16 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 namespace OnlineShop.Tests.Domain.Commands;
 
 [TestClass]
-public class BaseCommandTests<T,TR> : BaseTests
+public class BaseCommandTests<T> : BaseTests
     where T : EditableEntity
-    where TR: class, IBaseWriterRepository<T>
 {
     protected List<T> Entities;
-    protected Mock<TR> WriterRepositoryMock;
+    protected Mock<IWriterRepository> WriterRepositoryMock;
 
     [TestInitialize]
     public override void Initialize()
     {
         base.Initialize();
-        WriterRepositoryMock = new Mock<TR>(MockBehavior.Strict) { CallBase = true };
+        WriterRepositoryMock = new Mock<IWriterRepository>(MockBehavior.Strict) { CallBase = true };
     }
 }

@@ -12,12 +12,13 @@ using OnlineShop.Shared.Ports.Resources;
 
 namespace OnlineShop.Secondary.Adapters.Implementation;
 
-public abstract class BaseWriterRepository<T> : BaseRepository<T>, IBaseWriterRepository<T>
-    where T : EditableEntity
+public class WriterRepository : BaseRepository, IWriterRepository
 {
-    protected BaseWriterRepository(DatabaseContext dbContext) : base(dbContext) { }
-        
-    public async Task<Result<Guid>> SaveAsync(T entity, CancellationToken cancellationToken)
+    public WriterRepository(DatabaseContext dbContext) : base(dbContext)
+    {
+    }
+
+    public async Task<Result<Guid>> SaveAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
     {
         try
         {
@@ -34,17 +35,17 @@ public abstract class BaseWriterRepository<T> : BaseRepository<T>, IBaseWriterRe
         }
     }
 
-    public async Task<Result<List<Guid>>> SaveAsync(IEnumerable<T> entities, CancellationToken cancellationToken)
+    public async Task<Result<List<Guid>>> SaveAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken)
+        where T : EditableEntity
     {
         var entitiesList = entities?.ToList();
-        if (entitiesList == null
-            || entitiesList.Count <= 0)
+        if (entitiesList is not { Count: > 0 })
             return Result.Error<List<Guid>>(HttpStatusCode.NotModified, "[NotModified]", ErrorMessages.NotChanged);
 
         try
         {
             foreach (var entity in entitiesList)
-                await InsertOrUpdateAsync(entity, cancellationToken); 
+                await InsertOrUpdateAsync(entity, cancellationToken);
             var count = await DbContext.SaveChangesAsync(cancellationToken);
             return count > 0
                 ? Result.Ok(entitiesList.Select(e => e.Id.GetValueOrDefault()).ToList(),
@@ -59,12 +60,12 @@ public abstract class BaseWriterRepository<T> : BaseRepository<T>, IBaseWriterRe
         }
     }
 
-    public async Task<Result<List<T>>> SaveAndGetAsync(IEnumerable<T> entities, CancellationToken cancellationToken)
+    public async Task<Result<List<T>>> SaveAndGetAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken)
+        where T : EditableEntity
     {
         var entitiesList = entities?.ToList();
 
-        if (entitiesList == null
-            || entitiesList.Count <= 0)
+        if (entitiesList is not { Count: > 0 })
             return Result.Error<List<T>>(HttpStatusCode.NotModified, "[EntityNotProvided]",
                 ErrorMessages.NotProvided);
 
@@ -87,7 +88,8 @@ public abstract class BaseWriterRepository<T> : BaseRepository<T>, IBaseWriterRe
     }
 
 
-    public async Task<Result<T>> SaveAndGetAsync(T entity, CancellationToken cancellationToken)
+    public async Task<Result<T>> SaveAndGetAsync<T>(T entity, CancellationToken cancellationToken)
+        where T : EditableEntity
     {
         var result = await SaveAndGetAsync(new List<T> { entity }, cancellationToken);
         return result.HasErrors
@@ -95,11 +97,11 @@ public abstract class BaseWriterRepository<T> : BaseRepository<T>, IBaseWriterRe
             : Result.Ok(result.Data.FirstOrDefault());
     }
 
-    public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Result> DeleteAsync<T>(Guid id, CancellationToken cancellationToken) where T : EditableEntity
     {
         try
         {
-            var dbEntity = await DbSet.FindAsync(id);
+            var dbEntity = await DbContext.Set<T>().FindAsync(id);
             if (dbEntity == null)
                 return Result.Error(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
 
@@ -116,7 +118,7 @@ public abstract class BaseWriterRepository<T> : BaseRepository<T>, IBaseWriterRe
         }
     }
 
-    private async Task InsertOrUpdateAsync(T entity, CancellationToken cancellationToken)
+    private async Task InsertOrUpdateAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
     {
         if (entity.Id == null)
         {
@@ -127,6 +129,6 @@ public abstract class BaseWriterRepository<T> : BaseRepository<T>, IBaseWriterRe
         if (DbContext.Entry(entity).IsKeySet)
             DbContext.Entry(entity).State = EntityState.Modified;
         else
-            DbContext.Update(entity); // To be investigated
+           await DbContext.SingleUpdateAsync(entity, cancellationToken); // To be investigated
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.Net;
+﻿using System;
+using System.Linq.Expressions;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Users;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 using OnlineShop.Tests.Factories;
@@ -13,7 +14,7 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Commands.Users;
 
 [TestClass]
-public class RegisterCommandTests : BaseCommandTests<User, IUserWriterRepository>
+public class RegisterCommandTests : BaseCommandTests<User>
 {
     private User _user;
     private RegisterCommand.RegisterCommandHandler _registerCommandHandler;
@@ -24,6 +25,13 @@ public class RegisterCommandTests : BaseCommandTests<User, IUserWriterRepository
         base.Initialize();
         _registerCommandHandler = new RegisterCommand.RegisterCommandHandler(WriterRepositoryMock.Object);
         _user = UserFactory.Create().ToEntity();
+
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
+                CancellationToken.None,
+                null,
+                null))
+            .ReturnsAsync(Result.Ok(_user));
+
     }
 
 
@@ -32,11 +40,16 @@ public class RegisterCommandTests : BaseCommandTests<User, IUserWriterRepository
     {
         //Arrange
         var userEntity = _user.ToEntity();
+
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
+                CancellationToken.None,
+                null,
+                null))
+            .ReturnsAsync(Result.Error<User>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
+
         WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<User>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity.Id.GetValueOrDefault()));
 
-        WriterRepositoryMock.Setup(uw => uw.UserNotExistsAsync(It.IsAny<User>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok());
         //Act
         var actualResult = await _registerCommandHandler.Handle(new RegisterCommand{Data = _user},CancellationToken.None);
 
@@ -49,13 +62,10 @@ public class RegisterCommandTests : BaseCommandTests<User, IUserWriterRepository
     {
         //Arrange
         var userEntity = _user.ToEntity();
+
         WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<User>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity.Id.GetValueOrDefault()));
-
-        WriterRepositoryMock.Setup(uw => uw.UserNotExistsAsync(It.IsAny<User>(), CancellationToken.None))
-            .ReturnsAsync(Result.Error<bool>(HttpStatusCode.Conflict, 
-                "[AlreadyExist]",
-                ErrorMessages.UserAlreadyExist));
+        
         //Act
         var actualResult = await _registerCommandHandler.Handle(new RegisterCommand { Data = _user }, CancellationToken.None);
 

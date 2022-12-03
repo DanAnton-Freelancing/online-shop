@@ -21,6 +21,6 @@ public static class ServiceCollectionExtensions
         );
 
         services.AddScoped<IRequestHandler<LoginQuery, Result<string>>>(
-            s => new LoginQuery.LoginQueryHandler(s.GetRequiredService<IUserReaderRepository>(), secret));
+            s => new LoginQuery.LoginQueryHandler(s.GetRequiredService<IReaderRepository>(), secret));
     }
 }

@@ -20,7 +20,7 @@ public static class UserCartExtensions
         return Result.Ok(user);
     }
 
-    public static Result<UserCart> AddCartItem(this UserCart userCart, CartItem item)
+    public static Result<UserCart> AddCartItem(this UserCart userCart, CartItem item, Product product)
     {
         var cartItems = userCart.CartItems;
 
@@ -32,7 +32,6 @@ public static class UserCartExtensions
                 existingProduct.Price += item.Price;
             }
             else {
-                item.UserCartId = userCart.Id.GetValueOrDefault();
                 userCart.CartItems.Add(item);
             }
         }
@@ -40,11 +39,15 @@ public static class UserCartExtensions
             userCart.CartItems = new List<CartItem> {item};
         }
 
+        product.UpdateQuantity(0, item.Quantity);
+        item.Product = product;
+
         return Result.Ok(userCart);
     }
 
     public static Result<CartItem> UpdateCartItem(this CartItem cartItem, double quantity)
     {
+        var oldCartQuantity = cartItem.Quantity;
         if (cartItem.Quantity.Equals(quantity))
             return Result.Error<CartItem>(HttpStatusCode.NotModified, "[NotChanged]", ErrorMessages.NotChanged);
 
@@ -54,6 +57,7 @@ public static class UserCartExtensions
                     cartItem.Product.AvailableQuantity));
         cartItem.Quantity = quantity;
         cartItem.Price = (decimal) quantity * cartItem.Product.Price.GetValueOrDefault();
+        cartItem.Product.UpdateQuantity(oldCartQuantity, cartItem.Quantity);
         return Result.Ok(cartItem);
     }
 }

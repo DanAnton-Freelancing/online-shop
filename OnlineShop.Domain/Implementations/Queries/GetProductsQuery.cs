@@ -13,13 +13,13 @@ public class GetProductsQuery : IGetProductsQuery
 {
     public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, Result<List<Product>>>
     {
-        private readonly IProductReaderRepository _productReaderRepository;
+        private readonly IReaderRepository _readerRepository;
 
-        public GetProductsQueryHandler(IProductReaderRepository productReaderRepository)
-            => _productReaderRepository = productReaderRepository;
+        public GetProductsQueryHandler(IReaderRepository readerRepository)
+            => _readerRepository = readerRepository;
 
         public async Task<Result<List<Product>>> Handle(GetProductsQuery request,
             CancellationToken cancellationToken)
-            => await _productReaderRepository.GetAsync(cancellationToken);
+            => await _readerRepository.GetAsync<Product>(cancellationToken);
     }
 }

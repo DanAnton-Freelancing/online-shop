@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Queries;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 using OnlineShop.Tests.Extensions;
@@ -15,11 +17,10 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Queries;
 
 [TestClass]
-public class LoginQueryTests : BaseTests
+public class LoginQueryTests : BaseQueryTests
 {
     private User _user;
 
-    private Mock<IUserReaderRepository> _userReaderRepositoryMock;
     private LoginQuery.LoginQueryHandler _loginQueryHandler;
 
     [TestInitialize]
@@ -27,12 +28,10 @@ public class LoginQueryTests : BaseTests
     {
         base.Initialize();
 
-        _userReaderRepositoryMock = new Mock<IUserReaderRepository>(MockBehavior.Strict) { CallBase = true };
         _user = UserFactory.Create();
-        _loginQueryHandler = new LoginQuery.LoginQueryHandler(_userReaderRepositoryMock.Object, UserFactory.GetSecret());
+        _loginQueryHandler = new LoginQuery.LoginQueryHandler(ReaderRepositoryMock.Object, UserFactory.GetSecret());
 
     }
-
 
     [TestMethod]
     public async Task GivenUsernameAndPassword_WhenLoginAsync_ThenReturnResultOk()
@@ -44,7 +43,10 @@ public class LoginQueryTests : BaseTests
         userEntity.AddSalt();
         userEntity.AddPasswordHash();
 
-        _userReaderRepositoryMock.Setup(ur => ur.GetByUsernameAsync(It.IsAny<string>(), CancellationToken.None))
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(), 
+                CancellationToken.None,
+                It.IsAny<Func<IQueryable<User>, IOrderedQueryable<User>>>(),
+                It.IsAny<Func<IQueryable<User>, IIncludableQueryable<User, object>>>()))
             .ReturnsAsync(Result.Ok(userEntity));
 
         //Act
@@ -66,8 +68,10 @@ public class LoginQueryTests : BaseTests
 
         userEntity.AddSalt();
         userEntity.AddPasswordHash();
-
-        _userReaderRepositoryMock.Setup(uw => uw.GetByUsernameAsync(It.IsAny<string>(), CancellationToken.None))
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
+                CancellationToken.None,
+                It.IsAny<Func<IQueryable<User>, IOrderedQueryable<User>>>(),
+                It.IsAny<Func<IQueryable<User>, IIncludableQueryable<User, object>>>()))
             .ReturnsAsync(Result.Error<User>(HttpStatusCode.NotFound, "[NotFound]",
                 ErrorMessages.NotFound));
 
@@ -92,7 +96,10 @@ public class LoginQueryTests : BaseTests
         userEntity.AddSalt();
         userEntity.AddPasswordHash();
 
-        _userReaderRepositoryMock.Setup(uw => uw.GetByUsernameAsync(It.IsAny<string>(), CancellationToken.None))
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
+                CancellationToken.None,
+                It.IsAny<Func<IQueryable<User>, IOrderedQueryable<User>>>(),
+                It.IsAny<Func<IQueryable<User>, IIncludableQueryable<User, object>>>()))
             .ReturnsAsync(Result.Ok(userEntity));
 
         //Act

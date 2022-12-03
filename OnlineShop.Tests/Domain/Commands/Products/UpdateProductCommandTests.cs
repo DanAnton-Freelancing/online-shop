@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Products;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Factories;
 
 namespace OnlineShop.Tests.Domain.Commands.Products;
 
 [TestClass]
-public class UpdateProductCommandTests : BaseCommandTests<Product, IProductWriterRepository>
+public class UpdateProductCommandTests : BaseCommandTests<Product>
 {
 
     private Product _firstProduct;
@@ -36,9 +37,11 @@ public class UpdateProductCommandTests : BaseCommandTests<Product, IProductWrite
         WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(_firstProduct.Id.GetValueOrDefault()));
 
-        WriterRepositoryMock.Setup(ls => ls.GetWithChildAsync(It.IsAny<Guid>(),CancellationToken.None))
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
             .ReturnsAsync(Result.Ok(_firstProduct));
-
+        
         //Act
         var result = await _updateProductsCommandHandler.Handle(new UpdateProductCommand
         {

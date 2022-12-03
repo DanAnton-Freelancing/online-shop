@@ -14,8 +14,7 @@ using OnlineShop.Shared.Ports.Resources;
 
 namespace OnlineShop.Secondary.Adapters.Implementation;
 
-public abstract class BaseRepository<T> : IBaseRepository<T>
-    where T : EditableEntity
+public abstract class BaseRepository: IBaseRepository
 {
     protected readonly DatabaseContext DbContext;
 
@@ -23,13 +22,13 @@ public abstract class BaseRepository<T> : IBaseRepository<T>
     {
         DbContext = dbContext;
     }
-
-    protected DbSet<T> DbSet => DbContext.Set<T>();
-
-    public async Task<Result<List<T>>> GetAsync(CancellationToken cancellationToken, 
+    
+    public async Task<Result<List<T>>> GetAsync<T>(CancellationToken cancellationToken, 
         Expression<Func<T, bool>> filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
         Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        where T : EditableEntity
+
     {
         var queryable = GetAsync(filter, orderBy, include);
 
@@ -39,11 +38,11 @@ public abstract class BaseRepository<T> : IBaseRepository<T>
             ? Result.Ok(data)
             : Result.Error<List<T>>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
     }
-    public async Task<Result<T>> GetOneAsync(
+    public async Task<Result<T>> GetOneAsync<T>(
         Expression<Func<T, bool>> filter,
         CancellationToken cancellationToken,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : EditableEntity
     {
         var queryable = GetAsync(filter, orderBy, include);
 
@@ -54,9 +53,10 @@ public abstract class BaseRepository<T> : IBaseRepository<T>
             : Result.Error<T>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
     }
 
-    private IQueryable<T> GetAsync(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy, Func<IQueryable<T>, IIncludableQueryable<T, object>> include)
+    private IQueryable<T> GetAsync<T>(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy, Func<IQueryable<T>, IIncludableQueryable<T, object>> include) 
+        where T : EditableEntity
     {
-        IQueryable<T> queryable = DbSet;
+        IQueryable<T> queryable = DbContext.Set<T>();
 
         if (filter != null)
             queryable = queryable.Where(filter);

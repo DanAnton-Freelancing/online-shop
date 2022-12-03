@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Categories;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 using OnlineShop.Tests.Factories;
@@ -17,7 +16,7 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Commands.Categories;
 
 [TestClass]
-public class DeleteCategoryCommandTests : BaseCommandTests<Category, ICategoryWriterRepository>
+public class DeleteCategoryCommandTests : BaseCommandTests<Category>
 {
     private DeleteCategoryCommand.DeleteCategoryCommandHandler _deleteProductCommandHandler;
 
@@ -40,12 +39,9 @@ public class DeleteCategoryCommandTests : BaseCommandTests<Category, ICategoryWr
                 CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
                 It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
             .ReturnsAsync(Result.Ok(upsertProduct));
+        
 
-        WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok());
-
-
-        WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.DeleteAsync<Category>(It.IsAny<Guid>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok());
 
         //Act
@@ -70,11 +66,8 @@ public class DeleteCategoryCommandTests : BaseCommandTests<Category, ICategoryWr
                 CancellationToken.None, It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
                 It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
             .ReturnsAsync(error);
-            
-        WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok());
 
-        WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.DeleteAsync<Category>(It.IsAny<Guid>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok());
 
         //Act
@@ -91,10 +84,11 @@ public class DeleteCategoryCommandTests : BaseCommandTests<Category, ICategoryWr
 
 
     [TestMethod]
-    public async Task GivenInUseProductId_WhenDeleteProduct_ThenShouldReturnError()
+    public async Task GivenInUseCategoryId_WhenDeleteCategory_ThenShouldReturnError()
     {
         //Arrange
         var upsertCategory = CategoryFactory.CreateUpsert();
+        upsertCategory.Products = ProductFactory.Create();
         var error = Result.Error<Category>(HttpStatusCode.BadRequest, "[InUseNotDeleted]", ErrorMessages.InUseNotDeleted);
 
         WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Category, bool>>>(),
@@ -102,11 +96,7 @@ public class DeleteCategoryCommandTests : BaseCommandTests<Category, ICategoryWr
                 It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
             .ReturnsAsync(Result.Ok(upsertCategory));
 
-        WriterRepositoryMock.Setup(ls => ls.CheckIfIsUsedAsync(It.IsAny<Guid>(), CancellationToken.None))
-            .ReturnsAsync(error);
-
-
-        WriterRepositoryMock.Setup(ls => ls.DeleteAsync(It.IsAny<Guid>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.DeleteAsync<Category>(It.IsAny<Guid>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok());
 
         //Act

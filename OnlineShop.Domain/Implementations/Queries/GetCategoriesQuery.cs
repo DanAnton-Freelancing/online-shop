@@ -13,13 +13,13 @@ public class GetCategoriesQuery : IGetCategoriesQuery
 {
     public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, Result<List<Category>>>
     {
-        private readonly ICategoryReaderRepository _categoryReaderRepository;
+        private readonly IReaderRepository _readerRepository;
 
-        public GetCategoriesQueryHandler(ICategoryReaderRepository categoryReaderRepository)
-            => _categoryReaderRepository = categoryReaderRepository;
+        public GetCategoriesQueryHandler(IReaderRepository readerRepository)
+            => _readerRepository = readerRepository;
 
         public async Task<Result<List<Category>>> Handle(GetCategoriesQuery request,
             CancellationToken cancellationToken)
-            => await _categoryReaderRepository.GetAsync(cancellationToken);
+            => await _readerRepository.GetAsync<Category>(cancellationToken);
     }
 }

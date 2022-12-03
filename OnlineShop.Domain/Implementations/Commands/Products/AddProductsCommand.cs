@@ -15,15 +15,15 @@ public class AddProductsCommand : IAddProductsCommand
         
     public class AddProductsCommandHandler : IRequestHandler<AddProductsCommand, Result<Guid>>
     {
-        private readonly IProductWriterRepository _productWriterRepository;
+        private readonly IWriterRepository _writerRepository;
 
-        public AddProductsCommandHandler(IProductWriterRepository productWriterRepository)
+        public AddProductsCommandHandler(IWriterRepository writerRepository)
         {
             // add guard for repository 
-            _productWriterRepository = productWriterRepository;
+            _writerRepository = writerRepository;
         }
 
         public async Task<Result<Guid>> Handle(AddProductsCommand request, CancellationToken cancellationToken) 
-            => await _productWriterRepository.SaveAsync(request.Data, cancellationToken);
+            => await _writerRepository.SaveAsync(request.Data, cancellationToken);
     }
 }

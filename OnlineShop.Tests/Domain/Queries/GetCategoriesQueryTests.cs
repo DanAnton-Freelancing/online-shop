@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Queries;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
@@ -17,9 +16,8 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Queries;
 
 [TestClass]
-public class GetCategoriesQueryTests: BaseTests
+public class GetCategoriesQueryTests: BaseQueryTests
 {
-    private Mock<ICategoryReaderRepository> _categoryReaderRepositoryMock;
     private List<Category> _categories;
     private GetCategoriesQuery.GetCategoriesQueryHandler _getCategoriesQueryHandler;
 
@@ -27,9 +25,8 @@ public class GetCategoriesQueryTests: BaseTests
     public override void Initialize()
     {
         base.Initialize();
-        _categoryReaderRepositoryMock = new Mock<ICategoryReaderRepository>(MockBehavior.Strict) { CallBase = true };
         _categories = CategoryFactory.Create();
-        _getCategoriesQueryHandler = new GetCategoriesQuery.GetCategoriesQueryHandler(_categoryReaderRepositoryMock.Object);
+        _getCategoriesQueryHandler = new GetCategoriesQuery.GetCategoriesQueryHandler(ReaderRepositoryMock.Object);
 
     }
 
@@ -37,7 +34,7 @@ public class GetCategoriesQueryTests: BaseTests
     public async Task WhenGetProducts_ThenShouldReturnProducts()
     {
         //Arrange
-        _categoryReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None, It.IsAny<Expression<Func<Category, bool>>>(),
+        ReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None, It.IsAny<Expression<Func<Category, bool>>>(),
                 It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
                 It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
             .ReturnsAsync(Result.Ok(_categories));

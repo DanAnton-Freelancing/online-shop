@@ -18,17 +18,17 @@ public class UpdateCategoryCommand : IUpdateCategoryCommand
 
     public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Result<Guid>>
     {
-        private readonly ICategoryWriterRepository _categoryWriterRepository;
+        private readonly IWriterRepository _writerRepository;
 
-        public UpdateCategoryCommandHandler(ICategoryWriterRepository categoryWriterRepository)
+        public UpdateCategoryCommandHandler(IWriterRepository writerRepository)
         {
-            _categoryWriterRepository = categoryWriterRepository;
+            _writerRepository = writerRepository;
         }
 
         public async Task<Result<Guid>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken) 
-            => await _categoryWriterRepository.GetOneAsync(c => c.Id == request.Id, cancellationToken)
-                                              .AndAsync(c => c.Validate())
-                                              .AndAsync(c => c.Hidrate(request.Data))
-                                              .AndAsync(c => _categoryWriterRepository.SaveAsync(c, cancellationToken));
+            => await _writerRepository.GetOneAsync<Category>(c => c.Id == request.Id, cancellationToken)
+                                      .AndAsync(c => c.Validate())
+                                      .AndAsync(c => c.Hidrate(request.Data))
+                                      .AndAsync(c => _writerRepository.SaveAsync(c, cancellationToken));
     }
 }

@@ -12,8 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.RegisterAllTypes(new[]
         {
-            typeof(BaseRepository<>).Assembly,
-            typeof(BaseWriterRepository<>).Assembly
+            typeof(BaseRepository).Assembly
         });
 
         services.AddEntityFrameworkSqlServer()

@@ -10,15 +10,14 @@ using OnlineShop.Shared.Ports.DataContracts;
 
 namespace OnlineShop.Secondary.Ports.OperationContracts;
 
-public interface IBaseRepository<T>
-    where T : EditableEntity
+public interface IBaseRepository
 {
-    Task<Result<List<T>>> GetAsync(CancellationToken cancellationToken, Expression<Func<T, bool>> filter = null, 
+    Task<Result<List<T>>> GetAsync<T>(CancellationToken cancellationToken, Expression<Func<T, bool>> filter = null, 
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : EditableEntity;
 
-    Task<Result<T>> GetOneAsync(Expression<Func<T, bool>> filter, CancellationToken cancellationToken,
+    Task<Result<T>> GetOneAsync<T>(Expression<Func<T, bool>> filter, CancellationToken cancellationToken,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : EditableEntity;
 
 }

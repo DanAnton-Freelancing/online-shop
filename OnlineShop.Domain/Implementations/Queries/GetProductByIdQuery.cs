@@ -16,16 +16,16 @@ public class GetProductByIdQuery : IGetProductByIdQuery
 
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Result<Product>>
     {
-        private readonly IProductReaderRepository _productReaderRepository;
+        private readonly IReaderRepository _readerRepository;
 
-        public GetProductByIdQueryHandler(IProductReaderRepository productReaderRepository)
+        public GetProductByIdQueryHandler(IReaderRepository readerRepository)
         {
-            _productReaderRepository = productReaderRepository;
+            _readerRepository = readerRepository;
         }
 
         public async Task<Result<Product>> Handle(GetProductByIdQuery request,
             CancellationToken cancellationToken) 
-            => await _productReaderRepository.GetOneAsync(s => s.Id == request.Id, cancellationToken, null,
-                                                          p => p.Include(s => s.Images));
+            => await _readerRepository.GetOneAsync<Product>(s => s.Id == request.Id, cancellationToken, null,
+                                                            p => p.Include(s => s.Images));
     }
 }

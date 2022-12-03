@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Queries;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
@@ -17,9 +16,8 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Queries;
 
 [TestClass]
-public class GetProductsQueryTests: BaseTests
+public class GetProductsQueryTests: BaseQueryTests
 {
-    private Mock<IProductReaderRepository> _productReaderRepositoryMock;
     private List<Product> _products;
     private GetProductsQuery.GetProductsQueryHandler _getProductsQueryHandler;
 
@@ -27,9 +25,8 @@ public class GetProductsQueryTests: BaseTests
     public override void Initialize()
     {
         base.Initialize();
-        _productReaderRepositoryMock = new Mock<IProductReaderRepository>(MockBehavior.Strict) { CallBase = true };
         _products = ProductFactory.Create();
-        _getProductsQueryHandler = new GetProductsQuery.GetProductsQueryHandler(_productReaderRepositoryMock.Object);
+        _getProductsQueryHandler = new GetProductsQuery.GetProductsQueryHandler(ReaderRepositoryMock.Object);
 
     }
 
@@ -37,7 +34,7 @@ public class GetProductsQueryTests: BaseTests
     public async Task WhenGetProducts_ThenShouldReturnProducts()
     {
         //Arrange
-        _productReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None,
+        ReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None,
                 It.IsAny<Expression<Func<Product, bool>>>(),It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
                 It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
             .ReturnsAsync(Result.Ok(_products));

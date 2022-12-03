@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using OnlineShop.Domain.Extensions;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Cart;
 using OnlineShop.Secondary.Ports.DataContracts;
@@ -18,32 +19,28 @@ public class AddItemToCartCommand : IAddItemToCartCommand
 
     public class AddItemToCartCommandHandler : IRequestHandler<AddItemToCartCommand, Result>
     {
-
-        private readonly IUserCartWriterRepository _userCartWriterRepository;
-        private readonly ICartItemWriterRepository _cartItemWriterRepository;
-        private readonly IProductWriterRepository _productWriterRepository;
+        private readonly IWriterRepository _writerRepository;
         private Product _product;
 
-        public AddItemToCartCommandHandler(IUserCartWriterRepository userCartWriterRepository,
-            ICartItemWriterRepository cartItemWriterRepository,
-            IProductWriterRepository productWriterRepository)
+        public AddItemToCartCommandHandler(IWriterRepository writerRepository)
         {
-            _userCartWriterRepository = userCartWriterRepository;
-            _cartItemWriterRepository = cartItemWriterRepository;
-            _productWriterRepository = productWriterRepository;
+            _writerRepository = writerRepository;
         }
 
         public Task<Result> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
-            => _productWriterRepository.GetOneAsync(p => p.CartItem.ProductId == request.CartItem.ProductId, cancellationToken)
-                .PipeAsync(i => i.IsAvailable())
-                .PipeAsync(p => _product = p)
-                .PipeAsync(p => request.CartItem.Hidrate(p))
-                .AndAsync(i => _userCartWriterRepository.GetWithDetailsAsync(request.UserId, cancellationToken))
-                .AndAsync(c => c.AddCartItem(request.CartItem))
-                .PipeAsync(c => _cartItemWriterRepository.SaveAsync(c.CartItems, cancellationToken))
-                .PipeAsync(c => _userCartWriterRepository.SaveAsync(c, cancellationToken))
-                .AndAsync(_ => _product.UpdateQuantity(0, request.CartItem.Quantity))
-                .AndAsync(p => _productWriterRepository.SaveAsync(p, cancellationToken))
-                .RemoveDataAsync();
+        {
+            return _writerRepository.GetOneAsync<Product>(p => p.Id == request.CartItem.ProductId,
+                    cancellationToken)
+                                    .PipeAsync(i => i.IsAvailable())
+                                    .PipeAsync(p => _product = p)
+                                    .PipeAsync(p => request.CartItem.Hidrate(p))
+                                    .AndAsync(i => _writerRepository.GetOneAsync<UserCart>(c => c.UserId == request.UserId,
+                                                                                           cancellationToken, null,
+                                                                                           a => a.Include(u => u.CartItems)
+                                                                                                 .ThenInclude(u => u.Product)))
+                                    .AndAsync(c => c.AddCartItem(request.CartItem, _product))
+                                    .AndAsync(c => _writerRepository.SaveAsync(c, cancellationToken))
+                                    .RemoveDataAsync();
+        }
     }
 }

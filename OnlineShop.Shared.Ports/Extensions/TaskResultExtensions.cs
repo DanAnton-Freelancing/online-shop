@@ -51,66 +51,8 @@ public static class TaskResultExtensions
         return current;
     }
 
-    public static async Task<Result<T>> WithDataAsync<TI, T>(this Task<Result> current,
-        Func<TI> dataFunc)
-        where T : class
-    {
-        var currentResult = current.Result;
-        var result = currentResult as Result<T> ?? new Result<T>(currentResult.HttpStatusCode)
-        {
-            Messages = currentResult.Messages
-        };
-        if (result.HasErrors)
-            return await Task.FromResult(result);
-
-        var data = dataFunc();
-        result.Data = data as T;
-        return await Task.FromResult(result);
-    }
-
-    public static async Task<Result<T>> WithDataAsync<T>(this Task<Result> current,
-        Func<T> dataFunc)
-    {
-        var currentResult = current.Result;
-        var result = currentResult as Result<T> ?? new Result<T>(currentResult.HttpStatusCode)
-        {
-            Messages = currentResult.Messages
-        };
-        if (result.HasErrors)
-            return await Task.FromResult(result);
-
-        var data = dataFunc();
-        result.Data = data;
-        return await Task.FromResult(result);
-    }
-
-
-    public static async Task<Result> RemoveDataAsync(this Task<Result> current)
-    {
-        var currentResult = current.Result;
-        if (currentResult.GetType().IsConstructedGenericType)
-            return await Task.FromResult(new Result(currentResult.HttpStatusCode)
-            {
-                Messages = currentResult.Messages
-            });
-
-        return await current;
-    }
-
-    public static async Task<Result> RemoveDataAsync<T>(this Task<Result<T>> current)
-    {
-        var currentResult = current.Result;
-        if (currentResult.GetType().IsConstructedGenericType)
-            return await Task.FromResult(new Result(currentResult.HttpStatusCode)
-            {
-                Messages = currentResult.Messages
-            });
-
-        return await current;
-    }
-
     public static async Task<Result<T>> AndAsync<T>(this Task<Result> source,
-        Func<Result<T>> otherFunc)
+       Func<Result<T>> otherFunc)
     {
         var sourceResult = source.Result;
         var current = sourceResult as Result<T> ?? new Result<T>(sourceResult.HttpStatusCode)
@@ -155,8 +97,7 @@ public static class TaskResultExtensions
 
         return await current;
     }
-
-
+    
     public static async Task<Result<T>> AndAsync<T>(this Task<Result<T>> current,
         Func<T, Result> otherFunc)
     {
@@ -208,9 +149,9 @@ public static class TaskResultExtensions
         Func<T, Task<Result>> otherFunc)
     {
         var result = current.Result;
-        if (result == null) 
-            return await Task.FromResult((Result<T>) null);
-            
+        if (result == null)
+            return await Task.FromResult((Result<T>)null);
+
         if (!result.Success)
             return await Task.FromResult(result);
 
@@ -219,7 +160,63 @@ public static class TaskResultExtensions
         result.RemoveData();
 
         return await Task.FromResult(result);
+    }
 
+    public static async Task<Result<T>> WithDataAsync<TI, T>(this Task<Result> current,
+        Func<TI> dataFunc)
+        where T : class
+    {
+        var currentResult = current.Result;
+        var result = currentResult as Result<T> ?? new Result<T>(currentResult.HttpStatusCode)
+        {
+            Messages = currentResult.Messages
+        };
+        if (result.HasErrors)
+            return await Task.FromResult(result);
+
+        var data = dataFunc();
+        result.Data = data as T;
+        return await Task.FromResult(result);
+    }
+
+    public static async Task<Result<T>> WithDataAsync<T>(this Task<Result> current,
+        Func<T> dataFunc)
+    {
+        var currentResult = current.Result;
+        var result = currentResult as Result<T> ?? new Result<T>(currentResult.HttpStatusCode)
+        {
+            Messages = currentResult.Messages
+        };
+        if (result.HasErrors)
+            return await Task.FromResult(result);
+
+        var data = dataFunc();
+        result.Data = data;
+        return await Task.FromResult(result);
+    }
+
+    public static async Task<Result> RemoveDataAsync(this Task<Result> current)
+    {
+        var currentResult = current.Result;
+        if (currentResult.GetType().IsConstructedGenericType)
+            return await Task.FromResult(new Result(currentResult.HttpStatusCode)
+            {
+                Messages = currentResult.Messages
+            });
+
+        return await current;
+    }
+
+    public static async Task<Result> RemoveDataAsync<T>(this Task<Result<T>> current)
+    {
+        var currentResult = current.Result;
+        if (currentResult.GetType().IsConstructedGenericType)
+            return await Task.FromResult(new Result(currentResult.HttpStatusCode)
+            {
+                Messages = currentResult.Messages
+            });
+
+        return await current;
     }
 
     public static async Task<Result<T>> PipeAsync<T>(this Task<Result<T>> current,
@@ -232,7 +229,6 @@ public static class TaskResultExtensions
         return await current;
     }
 
-       
     public static async Task<Result> PipeAsync(this Task<Result> current,
         Action pipeAction)
     {
@@ -241,65 +237,4 @@ public static class TaskResultExtensions
 
         return await current;
     }
-    /*
-       public static void Add(this Result current,
-                              List<Message> messages)
-       {
-           current.Messages.AddRange(messages);
-           if (current.HttpStatusCode == HttpStatusCode.OK
-               && messages.Any(m => m.MessageType >= MessageType.Error))
-               current.HttpStatusCode = messages.Max(m => m.MessageType).GetDefaultStatusCode();
-       }
-
-       public static void Add(this Result current,
-                              MessageType type,
-                              string resourceKey,
-                              params string[] messageParams)
-       {
-           if (current.HttpStatusCode == HttpStatusCode.OK
-               && type >= MessageType.Error)
-               current.HttpStatusCode = type.GetDefaultStatusCode();
-
-           current.Messages.Add(new Message
-                                {
-                                    MessageType = type,
-                                    ResourceKey = resourceKey,
-                                    MessageParams = messageParams?.ToList()
-                                });
-       }
-
-       public static void EnsureSuccess(this Result result)
-       {
-           var sanitizedResult = result
-                                 ?? Result.Error(HttpStatusCode.InternalServerError, MessageType.Error, "[NoResult]");
-           if (sanitizedResult.HasErrors) throw new ResultException(sanitizedResult);
-       }
-
-       internal static void OverrideDataIfNecessary<T>(this Result<T> current,
-                                                       Result<T> other)
-       {
-           if (other.Success
-               || current.Data?.Equals(default(T)) == true)
-               current.Data = other.Data;
-       }
-
-       private static HttpStatusCode GetDefaultStatusCode(this MessageType messageType)
-       {
-           switch (messageType) {
-               case MessageType.Debug:
-               case MessageType.Info:
-               case MessageType.Warning:
-               case MessageType.Confirmation:
-                   return HttpStatusCode.OK;
-               case MessageType.Error:
-               case MessageType.OtherError:
-                   return HttpStatusCode.InternalServerError;
-               case MessageType.ConcurrencyError:
-                   return HttpStatusCode.Conflict;
-               case MessageType.ValidationError:
-                   return HttpStatusCode.BadRequest;
-               default:
-                   throw new ArgumentOutOfRangeException(nameof(messageType), messageType, null);
-           }
-       }*/
 }

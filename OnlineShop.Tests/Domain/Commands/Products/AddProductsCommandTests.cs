@@ -5,14 +5,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Domain.Implementations.Commands.Products;
 using OnlineShop.Secondary.Ports.DataContracts;
-using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Factories;
 
 namespace OnlineShop.Tests.Domain.Commands.Products;
 
 [TestClass]
-public class AddProductsCommandTests : BaseCommandTests<Product, IProductWriterRepository>
+public class AddProductsCommandTests : BaseCommandTests<Product>
 {
     private AddProductsCommand.AddProductsCommandHandler _addProductsCommandHandler;
 

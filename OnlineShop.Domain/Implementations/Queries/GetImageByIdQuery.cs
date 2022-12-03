@@ -15,14 +15,14 @@ public class GetImageByIdQuery : IGetImageByIdQuery
 
     public class GetImageByIdQueryHandler : IRequestHandler<GetImageByIdQuery, Result<Image>>
     {
-        private readonly IImageReaderRepository _imageReaderRepository;
+        private readonly IReaderRepository _readerRepository;
 
-        public GetImageByIdQueryHandler(IImageReaderRepository imageReaderRepository)
+        public GetImageByIdQueryHandler(IReaderRepository readerRepository)
         {
-            _imageReaderRepository = imageReaderRepository;
+            _readerRepository = readerRepository;
         }
 
         public async Task<Result<Image>> Handle(GetImageByIdQuery request, CancellationToken cancellationToken) 
-            => await _imageReaderRepository.GetOneAsync(i => request.ImageId == i.Id, cancellationToken);
+            => await _readerRepository.GetOneAsync<Image>(i => request.ImageId == i.Id, cancellationToken);
     }
 }
