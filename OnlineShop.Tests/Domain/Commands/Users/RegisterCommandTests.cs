@@ -47,9 +47,11 @@ public class RegisterCommandTests : BaseCommandTests<User>
                 null))
             .ReturnsAsync(Result.Error<User>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
 
+        WriterRepositoryMock.Setup(uw => uw.AddAsync(It.IsAny<User>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(userEntity));
+
         WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<User>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity.Id.GetValueOrDefault()));
-
         //Act
         var actualResult = await _registerCommandHandler.Handle(new RegisterCommand{Data = _user},CancellationToken.None);
 
@@ -63,9 +65,11 @@ public class RegisterCommandTests : BaseCommandTests<User>
         //Arrange
         var userEntity = _user.ToEntity();
 
+        WriterRepositoryMock.Setup(uw => uw.AddAsync(It.IsAny<User>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(userEntity));
+
         WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<User>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity.Id.GetValueOrDefault()));
-        
         //Act
         var actualResult = await _registerCommandHandler.Handle(new RegisterCommand { Data = _user }, CancellationToken.None);
 

@@ -29,6 +29,7 @@ public class UpdateCategoryCommand : IUpdateCategoryCommand
             => await _writerRepository.GetOneAsync<Category>(c => c.Id == request.Id, cancellationToken)
                                       .AndAsync(c => c.Validate())
                                       .AndAsync(c => c.Hidrate(request.Data))
+                                      .AndAsync(c => _writerRepository.AddAsync(c, cancellationToken))
                                       .AndAsync(c => _writerRepository.SaveAsync(c, cancellationToken));
     }
 }

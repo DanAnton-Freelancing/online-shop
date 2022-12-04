@@ -36,7 +36,7 @@ public class ProductsController : ControllerBase
 
     [HttpPut]
     public async Task<ActionResult> UpdateAsync([FromQuery] Guid id,
-        [FromBody] UpsertProduct upsertProduct, CancellationToken cancellationToken)
+        [FromForm] UpsertProduct upsertProduct, CancellationToken cancellationToken)
         => await _productsAdapter.UpdateAsync(id, upsertProduct, cancellationToken)
             .ToAsyncActionResult();
 

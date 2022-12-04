@@ -24,10 +24,12 @@ public class DeleteProductCommand : IDeleteProductCommand
             => _writerRepository = writerRepository;
 
         public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
-            => await _writerRepository.GetOneAsync<Product>(p => p.Id == request.Id, cancellationToken, null, p => p.Include(c => c.CartItem))
-                .AndAsync(CheckIfIsUsedAsync)
-                .AndAsync(_ => _writerRepository.DeleteAsync<Product>(request.Id, cancellationToken))
-                .RemoveDataAsync();
+            => await _writerRepository.GetOneAsync<Product>(p => p.Id == request.Id, cancellationToken, null,
+                                                            p => p.Include(c => c.CartItem))
+                                      .AndAsync(CheckIfIsUsedAsync)
+                                      .AndAsync(_ => _writerRepository.DeleteAsync<Product>(request.Id, cancellationToken))
+                                      .AndAsync(() => _writerRepository.SaveAsync(cancellationToken))
+                                      .RemoveDataAsync();
 
         private static Result<Product> CheckIfIsUsedAsync(Product product) 
             => product?.CartItem != null 

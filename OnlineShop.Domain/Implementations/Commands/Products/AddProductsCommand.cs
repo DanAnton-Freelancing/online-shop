@@ -6,6 +6,7 @@ using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Products;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
+using OnlineShop.Shared.Ports.Extensions;
 
 namespace OnlineShop.Domain.Implementations.Commands.Products;
 
@@ -24,6 +25,8 @@ public class AddProductsCommand : IAddProductsCommand
         }
 
         public async Task<Result<Guid>> Handle(AddProductsCommand request, CancellationToken cancellationToken) 
-            => await _writerRepository.SaveAsync(request.Data, cancellationToken);
+            => await _writerRepository.AddAsync(request.Data, cancellationToken)
+                                      .AndAsync(p => _writerRepository.AddAsync(p, cancellationToken))
+                                      .AndAsync(p => _writerRepository.SaveAsync(p, cancellationToken));
     }
 }

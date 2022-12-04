@@ -29,7 +29,8 @@ public class UpdateItemQuantityCommand : IUpdateItemQuantityCommand
             => await _writerRepository.GetOneAsync<CartItem>(c => c.Id == request.CartItemId, cancellationToken, null, 
                                                              c => c.Include(u => u.Product))
                                       .AndAsync(ci => ci.UpdateCartItem(request.Quantity))
-                                      .AndAsync(ci => _writerRepository.SaveAndGetAsync(ci, cancellationToken))
+                                      .AndAsync(ci => _writerRepository.AddAsync(ci, cancellationToken))
+                                      .AndAsync(ci => _writerRepository.SaveAsync(ci, cancellationToken))
                                       .RemoveDataAsync();
     }
 }

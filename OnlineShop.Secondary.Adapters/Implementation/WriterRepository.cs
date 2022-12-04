@@ -18,67 +18,31 @@ public class WriterRepository : BaseRepository, IWriterRepository
     {
     }
 
-    public async Task<Result<Guid>> SaveAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
+    public async Task<Result<T>> AddAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
     {
         try
         {
-            await InsertOrUpdateAsync(entity, cancellationToken);
-            var count = await DbContext.SaveChangesAsync(cancellationToken);
-            return count > 0
-                ? Result.Ok(entity.Id.GetValueOrDefault())
-                : Result.Error<Guid>(HttpStatusCode.NotModified, "[NotModified]", ErrorMessages.NotChanged);
+            return await InsertOrUpdateAsync(entity, cancellationToken);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            return Result.Error<Guid>(HttpStatusCode.InternalServerError, "[DbError]", ErrorMessages.DbError);
+            return Result.Error<T>(HttpStatusCode.InternalServerError, "[DbError]", ErrorMessages.DbError);
         }
     }
 
-    public async Task<Result<List<Guid>>> SaveAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken)
+    public async Task<Result<List<T>>> AddAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken)
         where T : EditableEntity
     {
         var entitiesList = entities?.ToList();
         if (entitiesList is not { Count: > 0 })
-            return Result.Error<List<Guid>>(HttpStatusCode.NotModified, "[NotModified]", ErrorMessages.NotChanged);
-
-        try
-        {
-            foreach (var entity in entitiesList)
-                await InsertOrUpdateAsync(entity, cancellationToken);
-            var count = await DbContext.SaveChangesAsync(cancellationToken);
-            return count > 0
-                ? Result.Ok(entitiesList.Select(e => e.Id.GetValueOrDefault()).ToList(),
-                    HttpStatusCode.Created)
-                : Result.Error<List<Guid>>(HttpStatusCode.NotModified, "[NotModified]",
-                    ErrorMessages.NotChanged);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            return Result.Error<List<Guid>>(HttpStatusCode.InternalServerError, "[DbError]", ErrorMessages.DbError);
-        }
-    }
-
-    public async Task<Result<List<T>>> SaveAndGetAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken)
-        where T : EditableEntity
-    {
-        var entitiesList = entities?.ToList();
-
-        if (entitiesList is not { Count: > 0 })
-            return Result.Error<List<T>>(HttpStatusCode.NotModified, "[EntityNotProvided]",
-                ErrorMessages.NotProvided);
-
+            return Result.Error<List<T>>(HttpStatusCode.NotModified, "[NotModified]", ErrorMessages.NotChanged);
         try
         {
             foreach (var entity in entitiesList)
                 await InsertOrUpdateAsync(entity, cancellationToken);
 
-            var count = await DbContext.SaveChangesAsync(cancellationToken);
-            return count > 0
-                ? Result.Ok(entitiesList, HttpStatusCode.Created)
-                : Result.Error<List<T>>(HttpStatusCode.NotModified, "[NotModified]",
-                    ErrorMessages.NotChanged);
+            return Result.Ok(entitiesList);
         }
         catch (Exception e)
         {
@@ -87,14 +51,29 @@ public class WriterRepository : BaseRepository, IWriterRepository
         }
     }
 
-
-    public async Task<Result<T>> SaveAndGetAsync<T>(T entity, CancellationToken cancellationToken)
-        where T : EditableEntity
+    public async Task<Result<Guid>> SaveAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
     {
-        var result = await SaveAndGetAsync(new List<T> { entity }, cancellationToken);
-        return result.HasErrors
-            ? Result.Error<T>(result.HttpStatusCode, result.ErrorMessage, result.ErrorMessage)
-            : Result.Ok(result.Data.FirstOrDefault());
+        var count = await DbContext.SaveChangesAsync(cancellationToken);
+        return count > 0
+            ? Result.Ok(entity.Id.GetValueOrDefault())
+            : Result.Error<Guid>(HttpStatusCode.NotModified, "[NotModified]", ErrorMessages.NotChanged);
+    }
+    public async Task<Result> SaveAsync(CancellationToken cancellationToken)
+    {
+        var count = await DbContext.SaveChangesAsync(cancellationToken);
+        return count > 0
+            ? Result.Ok()
+            : Result.Error<Guid>(HttpStatusCode.NotModified, "[NotDeleted]", ErrorMessages.NotChanged);
+    }
+
+    public async Task<Result<List<Guid>>> SaveAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken) where T : EditableEntity
+    {
+        var count = await DbContext.SaveChangesAsync(cancellationToken);
+        return count > 0
+            ? Result.Ok(entities.Select(e => e.Id.GetValueOrDefault()).ToList(),
+                HttpStatusCode.Created)
+            : Result.Error<List<Guid>>(HttpStatusCode.NotModified, "[NotModified]",
+                ErrorMessages.NotChanged);
     }
 
     public async Task<Result> DeleteAsync<T>(Guid id, CancellationToken cancellationToken) where T : EditableEntity
@@ -106,10 +85,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
                 return Result.Error(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
 
             DbContext.Set<T>().Remove(dbEntity);
-            var count = await DbContext.SaveChangesAsync(cancellationToken);
-            return count > 0
-                ? Result.Ok()
-                : Result.Error(HttpStatusCode.NotModified, "[NotDeleted]", ErrorMessages.NotChanged);
+           return Result.Ok();
         }
         catch (Exception e)
         {
@@ -118,17 +94,19 @@ public class WriterRepository : BaseRepository, IWriterRepository
         }
     }
 
-    private async Task InsertOrUpdateAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
+    private async Task<Result<T>> InsertOrUpdateAsync<T>(T entity, CancellationToken cancellationToken)
+        where T : EditableEntity
     {
         if (entity.Id == null)
         {
-            await DbContext.AddAsync(entity, cancellationToken);
-            return;
+            await DbContext.SingleInsertAsync(entity, cancellationToken);
+            return Result.Ok(entity);
         }
 
         if (DbContext.Entry(entity).IsKeySet)
             DbContext.Entry(entity).State = EntityState.Modified;
         else
-           await DbContext.SingleUpdateAsync(entity, cancellationToken); // To be investigated
+            await DbContext.SingleUpdateAsync(entity, cancellationToken);
+        return Result.Ok(entity);
     }
 }

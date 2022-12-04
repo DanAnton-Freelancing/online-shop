@@ -32,6 +32,7 @@ public class DeleteCategoryCommand : IDeleteCategoryCommand
                     cancellationToken, null, c => c.Include(u => u.Products))
                 .AndAsync(CheckIfIsUsedAsync)
                 .AndAsync(_ => _writerRepository.DeleteAsync<secondaryPorts.Category>(request.Id, cancellationToken))
+                .AndAsync(() => _writerRepository.SaveAsync(cancellationToken))
                 .RemoveDataAsync();
         }
 

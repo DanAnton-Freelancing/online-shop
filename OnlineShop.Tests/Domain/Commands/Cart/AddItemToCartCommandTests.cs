@@ -38,6 +38,9 @@ public class AddItemToCartCommandTests : BaseCommandTests<UserCart>
                 It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
             .ReturnsAsync(Result.Ok(_cartItem.Product));
 
+        WriterRepositoryMock.Setup(p => p.AddAsync(It.IsAny<Product>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_cartItem.Product));
+
         WriterRepositoryMock.Setup(p => p.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(_cartItem.Product.Id.GetValueOrDefault()));
 
@@ -46,12 +49,18 @@ public class AddItemToCartCommandTests : BaseCommandTests<UserCart>
                 It.IsAny<Func<IQueryable<CartItem>, IIncludableQueryable<CartItem, object>>>()))
             .ReturnsAsync(Result.Ok(_cartItem));
         
+        WriterRepositoryMock.Setup(uc => uc.AddAsync(It.IsAny<List<CartItem>>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(new List<CartItem> { _cartItem }));
+
         WriterRepositoryMock.Setup(uc => uc.SaveAsync(It.IsAny<List<CartItem>>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(new List<Guid> { _userCart.Id.GetValueOrDefault() }));
 
         WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<UserCart, bool>>>(),
                 CancellationToken.None, It.IsAny<Func<IQueryable<UserCart>, IOrderedQueryable<UserCart>>>(),
                 It.IsAny<Func<IQueryable<UserCart>, IIncludableQueryable<UserCart, object>>>()))
+            .ReturnsAsync(Result.Ok(_userCart));
+
+        WriterRepositoryMock.Setup(uc => uc.AddAsync(It.IsAny<UserCart>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(_userCart));
 
         WriterRepositoryMock.Setup(uc => uc.SaveAsync(It.IsAny<UserCart>(), CancellationToken.None))
@@ -101,9 +110,13 @@ public class AddItemToCartCommandTests : BaseCommandTests<UserCart>
                 CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
                 It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
             .ReturnsAsync(Result.Ok(cartItem2.Product));
+        
+        WriterRepositoryMock.Setup(p => p.AddAsync(It.IsAny<Product>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(cartItem2.Product));
 
         WriterRepositoryMock.Setup(p => p.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(cartItem2.Product.Id.GetValueOrDefault()));
+
         //Act
         var actualResult = await _addItemToCartCommandHandler.Handle(
             new AddItemToCartCommand { CartItem = cartItem2, UserId = _userCart.Id.GetValueOrDefault() },

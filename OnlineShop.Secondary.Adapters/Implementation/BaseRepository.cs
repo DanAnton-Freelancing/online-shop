@@ -18,11 +18,9 @@ public abstract class BaseRepository: IBaseRepository
 {
     protected readonly DatabaseContext DbContext;
 
-    protected BaseRepository(DatabaseContext dbContext)
-    {
-        DbContext = dbContext;
-    }
-    
+    protected BaseRepository(DatabaseContext dbContext) 
+        => DbContext = dbContext;
+
     public async Task<Result<List<T>>> GetAsync<T>(CancellationToken cancellationToken, 
         Expression<Func<T, bool>> filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,

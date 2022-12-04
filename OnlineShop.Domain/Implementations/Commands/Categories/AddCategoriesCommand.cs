@@ -7,6 +7,7 @@ using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Categories;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
+using OnlineShop.Shared.Ports.Extensions;
 
 namespace OnlineShop.Domain.Implementations.Commands.Categories;
 
@@ -25,6 +26,8 @@ public class AddCategoriesCommand: IAddCategoriesCommand
 
         public async Task<Result<List<Guid>>> Handle(AddCategoriesCommand request,
             CancellationToken cancellationToken)
-            => await _writerRepository.SaveAsync(request.Data, cancellationToken);
+            => await _writerRepository.AddAsync(request.Data, cancellationToken)
+                                      .AndAsync(c => _writerRepository.AddAsync(c, cancellationToken))
+                                      .AndAsync(c => _writerRepository.SaveAsync(c, cancellationToken));
     }
 }

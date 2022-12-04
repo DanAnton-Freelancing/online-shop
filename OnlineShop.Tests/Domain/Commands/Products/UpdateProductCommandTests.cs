@@ -34,6 +34,9 @@ public class UpdateProductCommandTests : BaseCommandTests<Product>
     {
         //Arrange
             
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<Product>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_firstProduct));
+
         WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(_firstProduct.Id.GetValueOrDefault()));
 

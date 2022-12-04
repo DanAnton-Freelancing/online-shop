@@ -29,10 +29,14 @@ public class AddCategoriesCommandTests : BaseCommandTests<Category>
     public async Task GivenCategories_WhenInsertAsync_ThenShouldReturnIds()
     {
         //Arrange
-        var productIds = Entities.Select(l => l.Id.GetValueOrDefault()).ToList();
+        var categoriesIds = Entities.Select(l => l.Id.GetValueOrDefault()).ToList();
 
-        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<List<Category>>(),CancellationToken.None))
-            .ReturnsAsync(Result.Ok(productIds));
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<List<Category>>(),CancellationToken.None))
+            .ReturnsAsync(Result.Ok(Entities));
+
+
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<List<Category>>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(categoriesIds));
 
         //Act
         var result = await _addProductsCommandHandler.Handle(new AddCategoriesCommand
@@ -41,6 +45,6 @@ public class AddCategoriesCommandTests : BaseCommandTests<Category>
         }, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(productIds, result.Data);
+        Assert.AreEqual(categoriesIds, result.Data);
     }
 }

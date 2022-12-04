@@ -29,10 +29,10 @@ public class RemoveItemFromCartCommand : IRemoveItemFromCartCommand
         public Task<Result> Handle(RemoveItemFromCartCommand request, CancellationToken cancellationToken)
         {
             return _writerRepository.GetOneAsync<CartItem>(c => c.Id == request.CartItemId, cancellationToken,
-                                                           null,
-                                                           c => c.Include(u => u.Product))
-                                    .AndAsync(ci => RemoveItemFromCart(ci, cancellationToken))
-                                    .RemoveDataAsync();
+                    null,
+                    c => c.Include(u => u.Product))
+                .AndAsync(ci => RemoveItemFromCart(ci, cancellationToken))
+                .RemoveDataAsync();
         }
 
         private async Task<Result> RemoveItemFromCart(CartItem cartItem, CancellationToken cancellationToken)
@@ -41,14 +41,20 @@ public class RemoveItemFromCartCommand : IRemoveItemFromCartCommand
 
             if (Math.Abs(cartItem.Quantity - 1.0d) == 0)
             {
-                //To Do: refactor _writerRepository to Commit changes only after all actions were done
-                return await _writerRepository.DeleteAsync<CartItem>(cartItem.Id.GetValueOrDefault(), cancellationToken);
+                var product = cartItem.Product;
+                await _writerRepository.DeleteAsync<CartItem>(cartItem.Id.GetValueOrDefault(), cancellationToken);
+
+                product.UpdateQuantity(oldCartQuantity, 0);
+                await _writerRepository.AddAsync(product, cancellationToken);
+                return await _writerRepository.SaveAsync(cancellationToken);
             }
-            
+
             cartItem.Quantity -= 1;
             cartItem.Price -= cartItem.Product.Price.GetValueOrDefault();
             cartItem.Product.UpdateQuantity(oldCartQuantity, cartItem.Quantity);
-            return await _writerRepository.SaveAsync(cartItem, cancellationToken);
+
+            return await _writerRepository.AddAsync(cartItem, cancellationToken)
+                .AndAsync(_ => _writerRepository.SaveAsync(cancellationToken));
         }
     }
 }

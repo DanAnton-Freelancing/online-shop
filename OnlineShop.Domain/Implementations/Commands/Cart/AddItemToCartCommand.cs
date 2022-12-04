@@ -27,20 +27,19 @@ public class AddItemToCartCommand : IAddItemToCartCommand
             _writerRepository = writerRepository;
         }
 
-        public Task<Result> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
-        {
-            return _writerRepository.GetOneAsync<Product>(p => p.Id == request.CartItem.ProductId,
+        public Task<Result> Handle(AddItemToCartCommand request, CancellationToken cancellationToken) 
+            => _writerRepository.GetOneAsync<Product>(p => p.Id == request.CartItem.ProductId,
                     cancellationToken)
-                                    .PipeAsync(i => i.IsAvailable())
-                                    .PipeAsync(p => _product = p)
-                                    .PipeAsync(p => request.CartItem.Hidrate(p))
-                                    .AndAsync(i => _writerRepository.GetOneAsync<UserCart>(c => c.UserId == request.UserId,
-                                                                                           cancellationToken, null,
-                                                                                           a => a.Include(u => u.CartItems)
-                                                                                                 .ThenInclude(u => u.Product)))
-                                    .AndAsync(c => c.AddCartItem(request.CartItem, _product))
-                                    .AndAsync(c => _writerRepository.SaveAsync(c, cancellationToken))
-                                    .RemoveDataAsync();
-        }
+                                .PipeAsync(i => i.IsAvailable())
+                                .PipeAsync(p => _product = p)
+                                .PipeAsync(p => request.CartItem.Hidrate(p))
+                                .AndAsync(i => _writerRepository.GetOneAsync<UserCart>(c => c.UserId == request.UserId,
+                                    cancellationToken, null,
+                                    a => a.Include(u => u.CartItems)
+                                        .ThenInclude(u => u.Product)))
+                                .AndAsync(c => c.AddCartItem(request.CartItem, _product))
+                                .AndAsync(c => _writerRepository.AddAsync(c, cancellationToken))
+                                .AndAsync(c => _writerRepository.SaveAsync(c, cancellationToken))
+                                .RemoveDataAsync();
     }
 }

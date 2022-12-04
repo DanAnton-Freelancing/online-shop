@@ -32,6 +32,8 @@ public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItem>
         _userCart = UserFactory.CreateUserCart();
         _cartItem = UserCartFactory.CreateCartItem(_userCart);
 
+        WriterRepositoryMock.Setup(p => p.AddAsync(It.IsAny<Product>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_cartItem.Product));
         WriterRepositoryMock.Setup(p => p.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(_cartItem.Product.Id.GetValueOrDefault()));
 
@@ -40,10 +42,15 @@ public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItem>
                 It.IsAny<Func<IQueryable<CartItem>, IIncludableQueryable<CartItem, object>>>()))
             .ReturnsAsync(Result.Ok(_cartItem));
 
-        WriterRepositoryMock.Setup(uc => uc.SaveAndGetAsync(It.IsAny<CartItem>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(uc => uc.AddAsync(It.IsAny<CartItem>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(_cartItem));
+        WriterRepositoryMock.Setup(uc => uc.SaveAsync(It.IsAny<CartItem>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_cartItem.Id.GetValueOrDefault()));
 
         WriterRepositoryMock.Setup(ci => ci.DeleteAsync<CartItem>(It.IsAny<Guid>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
+        WriterRepositoryMock.Setup(uc => uc.SaveAsync(CancellationToken.None))
             .ReturnsAsync(Result.Ok());
 
     }

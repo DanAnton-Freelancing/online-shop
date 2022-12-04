@@ -27,6 +27,7 @@ public class RegisterCommand : IRegisterCommand
             => DoesUserNotExists(request,cancellationToken)
                                 .AndAsync(request.Data.HashPassword)
                                 .AndAsync(request.Data.AddUserCart)
+                                .AndAsync(_ => _writerRepository.AddAsync(request.Data, cancellationToken))
                                 .AndAsync(_ => _writerRepository.SaveAsync(request.Data, cancellationToken))
                                 .RemoveDataAsync();
 

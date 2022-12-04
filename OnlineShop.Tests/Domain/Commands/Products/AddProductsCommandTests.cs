@@ -30,7 +30,10 @@ public class AddProductsCommandTests : BaseCommandTests<Product>
         //Arrange
         var productIds = Entities.Select(l => l.Id.GetValueOrDefault()).First();
 
-        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(),CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<Product>(),CancellationToken.None))
+            .ReturnsAsync(Result.Ok(Entities.First()));
+
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(productIds));
 
         //Act

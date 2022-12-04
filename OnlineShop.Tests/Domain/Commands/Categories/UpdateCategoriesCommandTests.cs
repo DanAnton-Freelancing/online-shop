@@ -34,6 +34,9 @@ public class UpdateCategoryCommandTests : BaseCommandTests<Category>
     {
         //Arrange
             
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<Category>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_firstCategory));
+
         WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Category>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
 
