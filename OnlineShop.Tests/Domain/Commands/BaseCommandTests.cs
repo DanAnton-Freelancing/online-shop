@@ -6,8 +6,7 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 
 namespace OnlineShop.Tests.Domain.Commands;
 
-[TestClass]
-public class BaseCommandTests<T> : BaseTests
+public abstract class BaseCommandTests<T> : BaseTests
     where T : EditableEntity
 {
     protected List<T> Entities;

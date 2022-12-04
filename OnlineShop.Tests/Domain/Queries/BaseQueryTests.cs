@@ -4,8 +4,7 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 
 namespace OnlineShop.Tests.Domain.Queries;
 
-[TestClass]
-public class BaseQueryTests : BaseTests
+public abstract class BaseQueryTests : BaseTests
 {
     protected Mock<IReaderRepository> ReaderRepositoryMock;
 

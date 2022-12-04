@@ -44,6 +44,9 @@ public class DeleteCategoryCommandTests : BaseCommandTests<Category>
         WriterRepositoryMock.Setup(ls => ls.DeleteAsync<Category>(It.IsAny<Guid>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok());
 
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
         //Act
         var result = await _deleteProductCommandHandler.Handle(new DeleteCategoryCommand
         {

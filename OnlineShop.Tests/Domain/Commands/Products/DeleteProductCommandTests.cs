@@ -43,6 +43,9 @@ public class DeleteProductCommandTests : BaseCommandTests<Product>
         WriterRepositoryMock.Setup(ls => ls.DeleteAsync<Product>(product.Id.GetValueOrDefault(), CancellationToken.None))
             .ReturnsAsync(Result.Ok());
 
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(CancellationToken.None))
+            .ReturnsAsync(Result.Ok());
+
         //Act
         var result = await _deleteProductCommandHandler.Handle(new DeleteProductCommand
         {
