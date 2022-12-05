@@ -43,6 +43,8 @@ public class LoginQueryTests : BaseQueryTests
         userEntity.AddSalt();
         userEntity.AddPasswordHash();
 
+        var query = new LoginQuery { Username = _user.Username, Password = userPassword };
+
         ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(), 
                 CancellationToken.None,
                 It.IsAny<Func<IQueryable<User>, IOrderedQueryable<User>>>(),
@@ -50,12 +52,12 @@ public class LoginQueryTests : BaseQueryTests
             .ReturnsAsync(Result.Ok(userEntity));
 
         //Act
-        var actualResult = await _loginQueryHandler.Handle(new LoginQuery { Username = _user.Username, Password = userPassword },
-            CancellationToken.None);
+        var actualResult = await _loginQueryHandler.Handle(query, CancellationToken.None);
 
         //Assert
         Assert.IsTrue(actualResult.Success);
         Assert.AreEqual(actualResult.HttpStatusCode, HttpStatusCode.OK);
+        Assert.IsNotNull(query.Username);
         Assert.IsNotNull(actualResult.Data);
     }
 

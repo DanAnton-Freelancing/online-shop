@@ -34,17 +34,20 @@ public class GetUserCartQueryTests : BaseQueryTests
     public async Task GivenUserId_WhenGetWithDetailsAsync_ThenShouldReturnUserWithDetails()
     {
         //Arrange
+        var query = new GetUserCartQuery
+        {
+            userId = _userCart.Id.GetValueOrDefault()
+        };
+
         ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<UserCart, bool>>>(),
                 CancellationToken.None, It.IsAny<Func<IQueryable<UserCart>, IOrderedQueryable<UserCart>>>(),
                 It.IsAny<Func<IQueryable<UserCart>, IIncludableQueryable<UserCart, object>>>()))
             .ReturnsAsync(Result.Ok(_userCart));
         //Act
-        var actualResult = await _getUserCartQueryHandler.Handle(new GetUserCartQuery
-        {
-            userId = _userCart.Id.GetValueOrDefault()
-        },CancellationToken.None);
+        var actualResult = await _getUserCartQueryHandler.Handle(query,CancellationToken.None);
 
         //Assert
         Assert.IsTrue(EntitiesAssertionsUtils<UserCart>.AreEntriesEqual(_userCart, actualResult.Data));
+        Assert.IsNotNull(query.userId);
     }
 }

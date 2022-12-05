@@ -50,6 +50,19 @@ public class ProductsAdapterTests : BaseTests
     }
 
     [TestMethod]
+    public async Task WhenGetByIdAsync_ThenShouldReturnProduct()
+    {
+        //Arrange
+        MediatorMock.Setup(m => m.Send(It.IsAny<IGetProductByIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(_firstProduct));
+
+        //Act
+        var result = await _productsAdapter.GetById(_firstProduct.Id.GetValueOrDefault(), CancellationToken.None);
+
+        //Assert
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Product>.AreEntriesEqual(result.Data, _firstProduct.MapToPrimary()));
+    }
+    [TestMethod]
     public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
     {
         //Arrange

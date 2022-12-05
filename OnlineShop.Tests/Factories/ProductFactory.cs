@@ -17,7 +17,14 @@ public static class ProductFactory
                 Price = 10,
                 AvailableQuantity = 20,
                 Category = CategoryFactory.Create()[0].ToEntity(),
-                CategoryId = CategoryFactory.Create()[0].ToEntity().Id.GetValueOrDefault()
+                CategoryId = CategoryFactory.Create()[0].ToEntity().Id.GetValueOrDefault(),
+                Images = new List<Image>()
+                {
+                    new()
+                    {
+                        Key = "key"
+                    }
+                }
             },
 
             new Product

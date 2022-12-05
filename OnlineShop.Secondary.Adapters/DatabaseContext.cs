@@ -1,19 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿// ReSharper disable VirtualMemberCallInConstructor
+using Microsoft.EntityFrameworkCore;
 using OnlineShop.Secondary.Adapters.Configurations;
 using OnlineShop.Secondary.Ports.DataContracts;
 
 namespace OnlineShop.Secondary.Adapters;
 
-public sealed class DatabaseContext : DbContext
+public class DatabaseContext : DbContext
 {
     public DatabaseContext(DbContextOptions options)
-        : base(options) => Database.Migrate();
+        : base(options)
+    {
+        if (Database.IsRelational())
+        {
+            Database.Migrate();
+        }
+    }
 
-    public DbSet<Product> Products { get; set; }
-    public DbSet<UserCart> UserCarts { get; set; }
-    public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Category> Categories { get; set; }
-    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

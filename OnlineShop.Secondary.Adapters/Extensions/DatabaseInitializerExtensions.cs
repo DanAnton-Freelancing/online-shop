@@ -9,7 +9,7 @@ public static class DatabaseInitializerExtensions
     public static void SeedInitialData(this IApplicationBuilder applicationBuilder)
     {
         using var serviceScope =
-            applicationBuilder.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+            applicationBuilder.ApplicationServices.GetService<IServiceScopeFactory>()!.CreateScope();
         var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
         DatabaseInitializer.Seed(context);
     }
