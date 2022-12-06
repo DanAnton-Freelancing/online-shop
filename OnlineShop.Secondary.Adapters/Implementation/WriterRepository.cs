@@ -22,7 +22,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
     {
         try
         {
-            return await InsertOrUpdateAsync(entity, cancellationToken);
+            return await InsertAsync(entity, cancellationToken);
         }
         catch (Exception e)
         {
@@ -40,7 +40,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
         try
         {
             foreach (var entity in entitiesList)
-                await InsertOrUpdateAsync(entity, cancellationToken);
+                await InsertAsync(entity, cancellationToken);
 
             return Result.Ok(entitiesList);
         }
@@ -94,19 +94,12 @@ public class WriterRepository : BaseRepository, IWriterRepository
         }
     }
 
-    private async Task<Result<T>> InsertOrUpdateAsync<T>(T entity, CancellationToken cancellationToken)
+    private async Task<Result<T>> InsertAsync<T>(T entity, CancellationToken cancellationToken)
         where T : EditableEntity
     {
-        if (entity.Id == null)
-        {
-            await DbContext.SingleInsertAsync(entity, cancellationToken);
+        if (entity.Id != null) 
             return Result.Ok(entity);
-        }
-
-        if (DbContext.Entry(entity).IsKeySet)
-            DbContext.Entry(entity).State = EntityState.Modified;
-        else
-            await DbContext.SingleUpdateAsync(entity, cancellationToken);
+        await DbContext.AddAsync(entity, cancellationToken);
         return Result.Ok(entity);
     }
 }

@@ -29,7 +29,6 @@ public class UpdateProductCommand : IUpdateProductCommand
                                       .Include(c => c.Images))
                                       .AndAsync(p => p.Validate())
                                       .AndAsync(p => p.Hidrate(request.Data))
-                                      .AndAsync(p => _writerRepository.AddAsync(p, cancellationToken))
                                       .AndAsync(p => _writerRepository.SaveAsync(p, cancellationToken));
     }
 }

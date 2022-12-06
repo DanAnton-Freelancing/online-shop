@@ -10,6 +10,7 @@ using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
 using OnlineShop.Tests.TestDouble;
 using Z.EntityFramework.Extensions;
+using static Amazon.S3.Util.S3EventNotification;
 
 namespace OnlineShop.Tests.Secondary.Adapters;
 
@@ -43,10 +44,8 @@ public class WriterRepositoryTests
         //Act
         var result = await _repository.AddAsync(entities.First(), CancellationToken.None);
 
-        var dbContextEntity = await _context.Set<FakeEntity>().FirstAsync();
-
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<FakeEntity>.AreEntriesEqual(result.Data, dbContextEntity));
+        Assert.IsNotNull(result.Data.Id);
     }
 
     [TestMethod]
@@ -63,11 +62,9 @@ public class WriterRepositoryTests
 
         //Act
         var result = await _repository.AddAsync(entities, CancellationToken.None);
-
-        var dbContextEntity = await _context.Set<FakeEntity>().ToListAsync();
-
+        
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<FakeEntity>.AreListsEqual(result.Data, dbContextEntity));
+        Assert.IsTrue(result.Data.Any(s => s.Id != null));
     }
 
     [TestMethod]
@@ -115,7 +112,74 @@ public class WriterRepositoryTests
         //Assert
         Assert.AreEqual(result.Data, dbContextEntity.Id);
     }
-    
+
+    [TestMethod]
+    public async Task GivenNotExistingEntityId_WhenDeleteAsync_ThenShouldMarkAsDeleted()
+    {
+        //Arrange
+        var entity = new FakeEntity
+        {
+            Name = "Fake entity"
+        };
+        
+        await _repository.AddAsync(entity, CancellationToken.None);
+        await _repository.SaveAsync(entity, CancellationToken.None);
+
+        //Act
+        var result = await _repository.DeleteAsync<FakeEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
+       
+
+        //Assert
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(_context.Entry(entity).State, EntityState.Deleted);
+    }
+
+
+    [TestMethod]
+    public async Task GivenExistingEntityId_WhenDeleteAsync_ThenShouldReturnError()
+    {
+        //Arrange
+        var entity = new FakeEntity
+        {
+            Name = "Fake entity"
+        };
+
+        await _repository.AddAsync(entity, CancellationToken.None);
+        await _repository.SaveAsync(entity, CancellationToken.None);
+
+        //Act
+        var result = await _repository.DeleteAsync<FakeEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
+
+
+        //Assert
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(_context.Entry(entity).State, EntityState.Deleted);
+    }
+
+
+    [TestMethod]
+    public async Task GivenExistingEntityId_WhenDeleteAsync_ThenShouldDelete()
+    {
+        //Arrange
+        var entity = new FakeEntity
+        {
+            Name = "Fake entity"
+        };
+
+        await _repository.AddAsync(entity, CancellationToken.None);
+        await _repository.SaveAsync(entity, CancellationToken.None);
+        await _repository.DeleteAsync<FakeEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
+        
+        //Act
+        var result = await _repository.SaveAsync(CancellationToken.None);
+
+
+        //Assert
+        Assert.IsTrue(result.Success);
+        Assert.IsNull(_context.Set<FakeEntity>().FirstOrDefault());
+    }
+
+
     [TestMethod]
     public async Task WhenGetAsyncFromEmptyDb_ThenShouldReturnError()
     {
