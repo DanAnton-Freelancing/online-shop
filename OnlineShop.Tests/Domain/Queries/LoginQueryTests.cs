@@ -19,7 +19,7 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class LoginQueryTests : BaseQueryTests
 {
-    private UserDb _userDb;
+    private UserD _userDb;
 
     private LoginQuery.LoginQueryHandler _loginQueryHandler;
 

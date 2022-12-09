@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Secondary.Ports.DataContracts;
 using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Tests.Factories;
@@ -15,27 +15,27 @@ public static class UserFactory
            "QCA9HCvTKZhBBWsB5rWC3uSqLL6PfLAqLH6gNzeNRXfkpPscpm9CYBSxyshDmxsdm" +
            "UBLdsZ3Wfk2KsDAL6C9tNdtmLby6f5gWcf8PKY8SjKwGXua9XMbFLsfn4t3HHF67rANxuYybac";
 
-    public static secondaryPorts.UserDb ToEntity(this secondaryPorts.UserDb userDb)
+    public static User ToEntity(this User userDb)
     {
         userDb.Id = Guid.NewGuid();
         return userDb;
     }
 
-    public static secondaryPorts.UserDb Create()
+    public static User Create()
         => new()
         {
             Email = "user1@example.com",
             FirstName = "user1",
             LastName = "user1",
-            UserCartDb = new secondaryPorts.UserCartDb(),
+            UserCart = new UserCart(),
             Password = "Centric1!",
             Username = "user1"
         };
 
-    public static secondaryPorts.UserCartDb CreateUserCart()
+    public static UserCart CreateUserCart()
         => new()
         {
-            CartItems = new List<secondaryPorts.CartItemDb>()
+            CartItems = new List<CartItem>()
         };
 
     public static primaryPorts.UserCartModel CreateUserDetails()
@@ -49,7 +49,7 @@ public static class UserFactory
     public static void ToEntity(this primaryPorts.UserCartModel userCartModel, Guid id)
         => userCartModel.Id = id;
 
-    public static void ToEntity(this secondaryPorts.UserCartDb userCartDb)
+    public static void ToEntity(this UserCart userCartDb)
         => userCartDb.Id = Guid.NewGuid();
 
     public static primaryPorts.RegisterUserModel CreateRegisterUser()
@@ -69,7 +69,7 @@ public static class UserFactory
             Username = "user1"
         };
 
-    public static void AddSalt(this secondaryPorts.UserDb userDb)
+    public static void AddSalt(this User userDb)
     {
         var salt = new byte[128 / 8];
         using (var rng = RandomNumberGenerator.Create())
@@ -80,7 +80,7 @@ public static class UserFactory
         userDb.Salt = salt;
     }
 
-    public static void AddPasswordHash(this secondaryPorts.UserDb userDb)
+    public static void AddPasswordHash(this User userDb)
         => userDb.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(userDb.Password,
             userDb.Salt,
             KeyDerivationPrf.HMACSHA1,
