@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OnlineShop.Domain.Implementations.Commands.Users;
+using OnlineShop.Application.Implementations.Commands.Users;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
@@ -14,9 +14,9 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Commands.Users;
 
 [TestClass]
-public class RegisterCommandTests : BaseCommandTests<User>
+public class RegisterCommandTests : BaseCommandTests<UserDb>
 {
-    private User _user;
+    private UserDb _userDb;
     private RegisterCommand.RegisterCommandHandler _registerCommandHandler;
 
     [TestInitialize]
@@ -24,13 +24,13 @@ public class RegisterCommandTests : BaseCommandTests<User>
     {
         base.Initialize();
         _registerCommandHandler = new RegisterCommand.RegisterCommandHandler(WriterRepositoryMock.Object);
-        _user = UserFactory.Create().ToEntity();
+        _userDb = UserFactory.Create().ToEntity();
 
-        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<UserDb, bool>>>(),
                 CancellationToken.None,
                 null,
                 null))
-            .ReturnsAsync(Result.Ok(_user));
+            .ReturnsAsync(Result.Ok(_userDb));
 
     }
 
@@ -39,21 +39,21 @@ public class RegisterCommandTests : BaseCommandTests<User>
     public async Task GiveUserDetails_WhenRegisterAsync_ThenReturnResultOk()
     {
         //Arrange
-        var userEntity = _user.ToEntity();
+        var userEntity = _userDb.ToEntity();
 
-        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<UserDb, bool>>>(),
                 CancellationToken.None,
                 null,
                 null))
-            .ReturnsAsync(Result.Error<User>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
+            .ReturnsAsync(Result.Error<UserDb>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
 
-        WriterRepositoryMock.Setup(uw => uw.AddAsync(It.IsAny<User>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(uw => uw.AddAsync(It.IsAny<UserDb>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity));
 
-        WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<User>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<UserDb>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity.Id.GetValueOrDefault()));
         //Act
-        var actualResult = await _registerCommandHandler.Handle(new RegisterCommand{Data = _user},CancellationToken.None);
+        var actualResult = await _registerCommandHandler.Handle(new RegisterCommand{Data = _userDb},CancellationToken.None);
 
         //Assert
         Assert.IsTrue(actualResult.Success);
@@ -63,15 +63,15 @@ public class RegisterCommandTests : BaseCommandTests<User>
     public async Task GivenExistingUserDetails_WhenRegisterAsync_ThenReturnResultAlreadyExist()
     {
         //Arrange
-        var userEntity = _user.ToEntity();
+        var userEntity = _userDb.ToEntity();
 
-        WriterRepositoryMock.Setup(uw => uw.AddAsync(It.IsAny<User>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(uw => uw.AddAsync(It.IsAny<UserDb>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity));
 
-        WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<User>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(uw => uw.SaveAsync(It.IsAny<UserDb>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(userEntity.Id.GetValueOrDefault()));
         //Act
-        var actualResult = await _registerCommandHandler.Handle(new RegisterCommand { Data = _user }, CancellationToken.None);
+        var actualResult = await _registerCommandHandler.Handle(new RegisterCommand { Data = _userDb }, CancellationToken.None);
 
         //Assert
         Assert.AreEqual(actualResult.HttpStatusCode, HttpStatusCode.Conflict);

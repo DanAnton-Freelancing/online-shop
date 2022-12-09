@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OnlineShop.Domain.Implementations.Queries;
+using OnlineShop.Application.Implementations.Queries;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
@@ -18,7 +18,7 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class GetCategoriesQueryTests: BaseQueryTests
 {
-    private List<Category> _categories;
+    private List<CategoryDb> _categories;
     private GetCategoriesQuery.GetCategoriesQueryHandler _getCategoriesQueryHandler;
 
     [TestInitialize]
@@ -34,16 +34,16 @@ public class GetCategoriesQueryTests: BaseQueryTests
     public async Task WhenGetProducts_ThenShouldReturnProducts()
     {
         //Arrange
-        ReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None, It.IsAny<Expression<Func<Category, bool>>>(),
-                It.IsAny<Func<IQueryable<Category>, IOrderedQueryable<Category>>>(),
-                It.IsAny<Func<IQueryable<Category>, IIncludableQueryable<Category, object>>>()))
+        ReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None, It.IsAny<Expression<Func<CategoryDb, bool>>>(),
+                It.IsAny<Func<IQueryable<CategoryDb>, IOrderedQueryable<CategoryDb>>>(),
+                It.IsAny<Func<IQueryable<CategoryDb>, IIncludableQueryable<CategoryDb, object>>>()))
             .ReturnsAsync(Result.Ok(_categories));
 
         //Act
         var result = await _getCategoriesQueryHandler.Handle(new GetCategoriesQuery(), CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<Category>.AreListsEqual(result.Data, _categories));
+        Assert.IsTrue(EntitiesAssertionsUtils<CategoryDb>.AreListsEqual(result.Data, _categories));
 
     }
 }

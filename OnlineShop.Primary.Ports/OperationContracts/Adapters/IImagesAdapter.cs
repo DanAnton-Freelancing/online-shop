@@ -8,5 +8,5 @@ namespace OnlineShop.Primary.Ports.OperationContracts.Adapters;
 
 public interface IImagesAdapter
 {
-    Task<Result<Image>> Get(Guid imageId, CancellationToken cancellationToken);
+    Task<Result<ImageModel>> Get(Guid imageId, CancellationToken cancellationToken);
 }

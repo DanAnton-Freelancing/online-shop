@@ -17,13 +17,13 @@ public class UsersController : ControllerBase
         
     [HttpPost]
     [Route("login")]
-    public async Task<ActionResult> LoginAsync([FromBody] LoginUser user, CancellationToken cancellationToken)
-        => await _usersAdapter.LoginAsync(user, cancellationToken)
+    public async Task<ActionResult> LoginAsync([FromBody] LoginUserModel userModel, CancellationToken cancellationToken)
+        => await _usersAdapter.LoginAsync(userModel, cancellationToken)
             .ToAsyncActionResult();
 
     [HttpPost]
     [Route("register")]
-    public async Task<ActionResult> Register([FromBody] RegisterUser user, CancellationToken cancellationToken)
-        => await _usersAdapter.RegisterAsync(user, cancellationToken)
+    public async Task<ActionResult> Register([FromBody] RegisterUserModel userModel, CancellationToken cancellationToken)
+        => await _usersAdapter.RegisterAsync(userModel, cancellationToken)
             .ToAsyncActionResult();
 }

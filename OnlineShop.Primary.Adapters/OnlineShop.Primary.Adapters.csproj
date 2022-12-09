@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OnlineShop.Application\OnlineShop.Application.csproj" />
     <ProjectReference Include="..\OnlineShop.Domain\OnlineShop.Domain.csproj" />
     <ProjectReference Include="..\OnlineShop.Primary.Ports\OnlineShop.Primary.Ports.csproj" />
     <ProjectReference Include="..\OnlineShop.Secondary.Ports\OnlineShop.Secondary.Ports.csproj" />
@@ -13,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.2" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.101.27" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.101.33" />
     <PackageReference Include="MediatR" Version="11.1.0" />
   </ItemGroup>
 

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using OnlineShop.Domain.Shared;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
@@ -25,7 +26,7 @@ public abstract class BaseRepository: IBaseRepository
         Expression<Func<T, bool>> filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
         Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
-        where T : EditableEntity
+        where T : Editable
 
     {
         var queryable = GetAsync(filter, orderBy, include);
@@ -40,7 +41,7 @@ public abstract class BaseRepository: IBaseRepository
         Expression<Func<T, bool>> filter,
         CancellationToken cancellationToken,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : EditableEntity
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : Editable
     {
         var queryable = GetAsync(filter, orderBy, include);
 
@@ -52,7 +53,7 @@ public abstract class BaseRepository: IBaseRepository
     }
 
     private IQueryable<T> GetAsync<T>(Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy, Func<IQueryable<T>, IIncludableQueryable<T, object>> include) 
-        where T : EditableEntity
+        where T : Editable
     {
         IQueryable<T> queryable = DbContext.Set<T>();
 

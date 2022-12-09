@@ -1,36 +1,36 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Domain.Entities;
 using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Adapters.Mappers;
 
 public static class CategoryMapper
 {
-    public static List<primaryPorts.Category> MapToPrimary(this List<secondaryPorts.Category> categories)
+    public static List<primaryPorts.CategoryModel> MapToPrimary(this List<CategoryEntity> categories)
         => categories.Select(l => l.MapToPrimary())
             .ToList();
 
-    public static primaryPorts.Category MapToPrimary(this secondaryPorts.Category category)
+    public static primaryPorts.CategoryModel MapToPrimary(this CategoryEntity categoryEntityDb)
         => new()
         {
-            Id = category.Id.GetValueOrDefault(),
-            Name = category.Name
+            Id = categoryEntityDb.Id.GetValueOrDefault(),
+            Name = categoryEntityDb.Name
         };
 
-    public static List<secondaryPorts.Category> MapToSecondary(this IList<primaryPorts.UpsertCategory> categories)
+    public static List<CategoryEntity> MapToSecondary(this IList<primaryPorts.UpsertCategoryModel> categories)
         => categories.Select(r => r.MapToUpsertSecondary())
             .ToList();
 
-    public static secondaryPorts.Category MapToSecondary(this primaryPorts.UpsertCategory upsertCategory)
+    public static CategoryEntity MapToSecondary(this primaryPorts.UpsertCategoryModel upsertCategoryModel)
         => new()
         {
-            Name = upsertCategory.Name
+            Name = upsertCategoryModel.Name
         };
 
-    private static secondaryPorts.Category MapToUpsertSecondary(this primaryPorts.UpsertCategory upsertCategory)
+    private static CategoryEntity MapToUpsertSecondary(this primaryPorts.UpsertCategoryModel upsertCategoryModel)
         => new()
         {
-            Name = upsertCategory.Name
+            Name = upsertCategoryModel.Name
         };
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Domain.Entities;
 using OnlineShop.Shared.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Categories;
 
-public interface IAddCategoriesCommand : ICreateCommand<List<Category>, Result<List<Guid>>>
+public interface IAddCategoriesCommand : ICreateCommand<List<CategoryEntity>, Result<List<Guid>>>
 {
 }

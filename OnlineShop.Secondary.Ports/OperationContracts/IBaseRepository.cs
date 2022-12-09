@@ -14,10 +14,10 @@ public interface IBaseRepository
 {
     Task<Result<List<T>>> GetAsync<T>(CancellationToken cancellationToken, Expression<Func<T, bool>> filter = null, 
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : EditableEntity;
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : Editable;
 
     Task<Result<T>> GetOneAsync<T>(Expression<Func<T, bool>> filter, CancellationToken cancellationToken,
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : EditableEntity;
+        Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null) where T : Editable;
 
 }

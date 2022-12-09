@@ -2,7 +2,7 @@
 
 namespace OnlineShop.Secondary.Ports.DataContracts;
 
-public class Category : EditableEntity
+public class Category : Editable
 {
     public string Name { get; set; }
 

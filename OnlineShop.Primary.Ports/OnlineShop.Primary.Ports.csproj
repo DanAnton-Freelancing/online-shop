@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OnlineShop.Domain\OnlineShop.Domain.csproj" />
     <ProjectReference Include="..\OnlineShop.Secondary.Ports\OnlineShop.Secondary.Ports.csproj" />
     <ProjectReference Include="..\OnlineShop.Shared.Ports\OnlineShop.Shared.Ports.csproj" />
   </ItemGroup>

@@ -8,15 +8,15 @@ namespace OnlineShop.Primary.Adapters.Validators;
 
 public static class UpsertCartItemValidator
 {
-    public static async Task<Result> ValidateAsync(UpsertCartItem item)
+    public static async Task<Result> ValidateAsync(UpsertCartItemModel itemModel)
     {
-        if (item == null)
+        if (itemModel == null)
             return await Task.FromResult(Result.Error(HttpStatusCode.BadRequest, "[InvalidInput]"));
 
-        if (item.ProductId.Equals(Guid.Empty))
+        if (itemModel.ProductId.Equals(Guid.Empty))
             return await Task.FromResult(Result.Error(HttpStatusCode.BadRequest, "[InvalidProductId]"));
 
-        return item.Quantity <= 0
+        return itemModel.Quantity <= 0
             ? await Task.FromResult(Result.Error(HttpStatusCode.BadRequest, "[InvalidQuantity]"))
             : await Task.FromResult(Result.Ok());
     }

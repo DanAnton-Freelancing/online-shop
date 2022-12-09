@@ -7,53 +7,53 @@ namespace OnlineShop.Tests.Factories;
 
 public static class CategoryFactory
 {
-    public static List<secondaryPorts.Category> Create()
+    public static List<secondaryPorts.CategoryDb> Create()
         => new()
         {
-            new secondaryPorts.Category
+            new secondaryPorts.CategoryDb
             {
                 Name = "Category1"
             },
-            new secondaryPorts.Category
+            new secondaryPorts.CategoryDb
             {
                 Name = "Category2"
             },
-            new secondaryPorts.Category
+            new secondaryPorts.CategoryDb
             {
                 Name = "Category3"
             }
         };
 
-    public static secondaryPorts.Category ToEntity(this secondaryPorts.Category category)
+    public static secondaryPorts.CategoryDb ToEntity(this secondaryPorts.CategoryDb categoryDb)
     {
-        category.Id = Guid.NewGuid();
-        return category;
+        categoryDb.Id = Guid.NewGuid();
+        return categoryDb;
     }
 
-    public static secondaryPorts.Category CreateUpsert()
+    public static secondaryPorts.CategoryDb CreateUpsert()
         => new()
         {
             Name = "NewCategory"
         };
 
-    public static primaryPorts.UpsertCategory CreateUpsertModel()
+    public static primaryPorts.UpsertCategoryModel CreateUpsertModel()
         => new()
         {
             Name = "NewCategory"
         };
 
-    public static List<primaryPorts.UpsertCategory> CreateUpsertModels()
+    public static List<primaryPorts.UpsertCategoryModel> CreateUpsertModels()
         => new()
         {
-            new primaryPorts.UpsertCategory
+            new primaryPorts.UpsertCategoryModel
             {
                 Name = "Category1"
             },
-            new primaryPorts.UpsertCategory
+            new primaryPorts.UpsertCategoryModel
             {
                 Name = "Category2"
             },
-            new primaryPorts.UpsertCategory
+            new primaryPorts.UpsertCategoryModel
             {
                 Name = "Category3"
             }

@@ -30,7 +30,7 @@ public class ReaderRepositoryTests
     public async Task WhenGetAsync_ThenShouldReturnEntities()
     {
         //Arrange
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
@@ -41,17 +41,17 @@ public class ReaderRepositoryTests
         await _context.SaveChangesAsync();
 
         //Act
-        var result = await _repository.GetAsync<FakeEntity>(CancellationToken.None);
+        var result = await _repository.GetAsync<FakeDbEntity>(CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<FakeEntity>.AreListsEqual(result.Data, entities));
+        Assert.IsTrue(EntitiesAssertionsUtils<FakeDbEntity>.AreListsEqual(result.Data, entities));
     }
 
     [TestMethod]
     public async Task WhenGetAsyncFromEmptyDb_ThenShouldReturnError()
     {
         //Act
-        var result = await _repository.GetAsync<FakeEntity>(CancellationToken.None);
+        var result = await _repository.GetAsync<FakeDbEntity>(CancellationToken.None);
 
         //Assert
         Assert.IsTrue(result.HasErrors);
@@ -62,7 +62,7 @@ public class ReaderRepositoryTests
     {
         //Arrange
         var entityId = Guid.NewGuid();
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
@@ -73,24 +73,24 @@ public class ReaderRepositoryTests
         await _context.SaveChangesAsync();
 
         //Act
-        var result = await _repository.GetOneAsync<FakeEntity>(c => c.Id == entityId, CancellationToken.None);
+        var result = await _repository.GetOneAsync<FakeDbEntity>(c => c.Id == entityId, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<FakeEntity>.AreEntriesEqual(result.Data, entities.First()));
+        Assert.IsTrue(EntitiesAssertionsUtils<FakeDbEntity>.AreEntriesEqual(result.Data, entities.First()));
     }
 
     [TestMethod]
     public async Task WhenGetWithFilterAsync_ThenShouldReturnEntities()
     {
         //Arrange
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
                 Id = Guid.NewGuid(),
                 Name = "Entity 1",
                 Deleted = false,
-                Child = new FakeEntityChild
+                Child = new FakeDbEntityChild
                 {
                     Id = Guid.NewGuid()
                 }
@@ -100,7 +100,7 @@ public class ReaderRepositoryTests
                 Id = Guid.NewGuid(),
                 Name = "Entity 2",
                 Deleted = true,
-                Child = new FakeEntityChild
+                Child = new FakeDbEntityChild
                 {
                     Id = Guid.NewGuid()
                 }
@@ -110,7 +110,7 @@ public class ReaderRepositoryTests
                 Id = Guid.NewGuid(),
                 Name = "Entity 3",
                 Deleted = false,
-                Child = new FakeEntityChild
+                Child = new FakeDbEntityChild
                 {
                     Id = Guid.NewGuid()
                 }
@@ -120,10 +120,10 @@ public class ReaderRepositoryTests
         await _context.SaveChangesAsync();
 
         //Act
-        var result = await _repository.GetAsync<FakeEntity>(CancellationToken.None, c => c.Name.Contains("Entity"),
+        var result = await _repository.GetAsync<FakeDbEntity>(CancellationToken.None, c => c.Name.Contains("Entity"),
             c => c.OrderBy(a => a.Name), c => c.Include(a => a.Child));
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<FakeEntity>.AreListsEqual(result.Data, entities));
+        Assert.IsTrue(EntitiesAssertionsUtils<FakeDbEntity>.AreListsEqual(result.Data, entities));
     }
 }

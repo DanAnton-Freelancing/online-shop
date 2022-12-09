@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace OnlineShop.Secondary.Ports.DataContracts;
 
-public class UserCart : EditableEntity
+public class UserCart : Editable
 {
     public List<CartItem> CartItems { get; set; }
     public decimal Total => CartItems.Sum(ci => ci.Price);

@@ -6,7 +6,7 @@ using OnlineShop.Secondary.Ports.DataContracts;
 namespace OnlineShop.Tests.Extensions;
 
 public static class EntitiesAssertionsUtils<T>
-    where T : EditableEntity
+    where T : EditableDbEntity
 {
     public static bool AreListsEqual(List<T> list1,
         List<T> list2)

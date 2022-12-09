@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
 using MediatR;
-using OnlineShop.Domain.Implementations.Queries;
+using OnlineShop.Application.Implementations.Queries;
 using OnlineShop.Primary.Ports.DataContracts;
 using OnlineShop.Primary.Ports.OperationContracts.Adapters;
 using OnlineShop.Shared.Ports.DataContracts;
@@ -23,13 +23,13 @@ public class ImagesAdapter : IImagesAdapter
         _s3Client = s3Client;
     }
 
-    public async Task<Result<Image>> Get(Guid imageId, CancellationToken cancellationToken)
+    public async Task<Result<ImageModel>> Get(Guid imageId, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetImageByIdQuery { ImageId = imageId }, cancellationToken);
 
         var bucketExists = await _s3Client.DoesS3BucketExistAsync(BucketName);
         if (!bucketExists)
-            return Result.Ok(new Image());
+            return Result.Ok(new ImageModel());
 
         var s3Object = await _s3Client.GetObjectAsync(BucketName, result.Data.Key, cancellationToken);
         byte[] imageByteArray;
@@ -39,7 +39,7 @@ public class ImagesAdapter : IImagesAdapter
             imageByteArray = memoryStream.ToArray();
         }
 
-        return Result.Ok(new Image
+        return Result.Ok(new ImageModel
         {
             Id = result.Data.Id,
             File = imageByteArray

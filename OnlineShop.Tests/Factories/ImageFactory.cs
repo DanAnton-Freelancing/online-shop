@@ -10,21 +10,21 @@ namespace OnlineShop.Tests.Factories;
 
 public static class ImageFactory
 {
-    public static secondaryPorts.Image Create()
+    public static secondaryPorts.ImageDb Create()
         =>
             new()
             {
                 Key = "key",
             };
 
-    public static secondaryPorts.Image ToEntity(this secondaryPorts.Image image)
+    public static secondaryPorts.ImageDb ToEntity(this secondaryPorts.ImageDb imageDb)
     {
-        image.Id = Guid.NewGuid();
-        return image;
+        imageDb.Id = Guid.NewGuid();
+        return imageDb;
     }
 
 
-    public static primaryPorts.Image MapToPrimary(this secondaryPorts.Image image, GetObjectResponse s3Object)
+    public static primaryPorts.ImageModel MapToPrimary(this secondaryPorts.ImageDb imageDb, GetObjectResponse s3Object)
     {
         byte[] imageByteArray;
         using (var memoryStream = new MemoryStream())
@@ -33,9 +33,9 @@ public static class ImageFactory
             imageByteArray = memoryStream.ToArray();
         }
 
-        return new primaryPorts.Image
+        return new primaryPorts.ImageModel
         {
-            Id = image.Id,
+            Id = imageDb.Id,
             File = imageByteArray
         };
     }

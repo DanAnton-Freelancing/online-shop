@@ -19,9 +19,9 @@ namespace OnlineShop.Tests.Primary.Adapters;
 [TestClass]
 public class CategoriesAdapterTests : BaseTests
 {
-    private List<secondaryPorts.Category> _categories;
+    private List<secondaryPorts.CategoryDb> _categories;
     private CategoriesAdapter _categoriesAdapter;
-    private secondaryPorts.Category _firstCategory;
+    private secondaryPorts.CategoryDb _firstCategoryDb;
 
     [TestInitialize]
     public override void Initialize()
@@ -29,7 +29,7 @@ public class CategoriesAdapterTests : BaseTests
         base.Initialize();
         _categories = CategoryFactory.Create();
         _categoriesAdapter = new CategoriesAdapter(MediatorMock.Object);
-        _firstCategory = _categories.First().ToEntity();
+        _firstCategoryDb = _categories.First().ToEntity();
     }
 
     [TestMethod]
@@ -43,7 +43,7 @@ public class CategoriesAdapterTests : BaseTests
         var result = await _categoriesAdapter.GetAllAsync(CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Category>.AreListsEqual(result.Data, _categories.MapToPrimary()));
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.CategoryModel>.AreListsEqual(result.Data, _categories.MapToPrimary()));
     }
 
     [TestMethod]
@@ -71,13 +71,13 @@ public class CategoriesAdapterTests : BaseTests
         var upsertCategory = CategoryFactory.CreateUpsertModel();
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IUpdateCategoryCommand>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
+            .ReturnsAsync(Result.Ok(_firstCategoryDb.Id.GetValueOrDefault()));
 
         //Act
-        var result = await _categoriesAdapter.UpdateAsync(_firstCategory.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
+        var result = await _categoriesAdapter.UpdateAsync(_firstCategoryDb.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(_firstCategory.Id.GetValueOrDefault(), result.Data);
+        Assert.AreEqual(_firstCategoryDb.Id.GetValueOrDefault(), result.Data);
     }
 
     [TestMethod]
@@ -89,7 +89,7 @@ public class CategoriesAdapterTests : BaseTests
             .ReturnsAsync(Result.Ok());
 
         //Act
-        var result = await _categoriesAdapter.DeleteAsync(_firstCategory.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _categoriesAdapter.DeleteAsync(_firstCategoryDb.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
         Assert.IsTrue(result.Success);

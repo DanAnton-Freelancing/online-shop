@@ -1,6 +1,6 @@
 ﻿namespace OnlineShop.Secondary.Ports.DataContracts;
 
-public class User : EditableEntity
+public class User : Editable
 {
     public string Username { get; set; }
     public string Email { get; set; }

@@ -26,14 +26,14 @@ public class CategoriesController : ControllerBase
             .ToAsyncActionResult();
 
     [HttpPost]
-    public async Task<ActionResult> InsertAsync([FromBody] List<UpsertCategory> categories, CancellationToken cancellationToken)
+    public async Task<ActionResult> InsertAsync([FromBody] List<UpsertCategoryModel> categories, CancellationToken cancellationToken)
         => await _categoriesAdapter.InsertAsync(categories, cancellationToken)
             .ToAsyncActionResult();
 
     [HttpPut]
     public async Task<ActionResult> UpdateAsync([FromQuery] Guid id,
-        [FromBody] UpsertCategory upsertCategory, CancellationToken cancellationToken)
-        => await _categoriesAdapter.UpdateAsync(id, upsertCategory, cancellationToken)
+        [FromBody] UpsertCategoryModel upsertCategoryModel, CancellationToken cancellationToken)
+        => await _categoriesAdapter.UpdateAsync(id, upsertCategoryModel, cancellationToken)
             .ToAsyncActionResult();
 
     [HttpDelete]

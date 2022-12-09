@@ -7,18 +7,18 @@ namespace OnlineShop.Tests.Factories;
 
 public static class ProductFactory
 {
-    public static List<Product> Create()
+    public static List<ProductDb> Create()
         => new()
         {
-            new Product
+            new ProductDb
             {
                 Name = "Product1",
                 Code = "RandomCode1",
                 Price = 10,
                 AvailableQuantity = 20,
-                Category = CategoryFactory.Create()[0].ToEntity(),
+                CategoryDb = CategoryFactory.Create()[0].ToEntity(),
                 CategoryId = CategoryFactory.Create()[0].ToEntity().Id.GetValueOrDefault(),
-                Images = new List<Image>()
+                Images = new List<ImageDb>()
                 {
                     new()
                     {
@@ -27,27 +27,27 @@ public static class ProductFactory
                 }
             },
 
-            new Product
+            new ProductDb
             {
                 Name = "Product2",
                 Code = "RandomCode2",
                 Price = 23,
                 AvailableQuantity = 11,
-                Category = CategoryFactory.Create()[1].ToEntity(),
+                CategoryDb = CategoryFactory.Create()[1].ToEntity(),
                 CategoryId = CategoryFactory.Create()[1].ToEntity().Id.GetValueOrDefault()
             },
-            new Product
+            new ProductDb
             {
                 Name = "Product3",
                 Code = "RandomCode3",
                 Price = 30,
                 AvailableQuantity = 30,
-                Category = CategoryFactory.Create()[2].ToEntity(),
+                CategoryDb = CategoryFactory.Create()[2].ToEntity(),
                 CategoryId = CategoryFactory.Create()[2].ToEntity().Id.GetValueOrDefault()
             }
         };
 
-    public static Product CreateUpsert()
+    public static ProductDb CreateUpsert()
         => new()
         {
             Name = "NewProduct",
@@ -57,7 +57,7 @@ public static class ProductFactory
             CategoryId = new Guid("7b67fc8d-d0c4-4f02-88e7-fb3f9fd3d427")
         };
 
-    public static primaryPorts.UpsertProduct CreateUpsertModel()
+    public static primaryPorts.UpsertProductModel CreateUpsertModel()
         => new()
         {
             Name = "NewProduct",
@@ -65,10 +65,10 @@ public static class ProductFactory
             AvailableQuantity = 300
         };
 
-    public static List<primaryPorts.UpsertProduct> CreateUpsertModels()
+    public static List<primaryPorts.UpsertProductModel> CreateUpsertModels()
         => new()
         {
-            new primaryPorts.UpsertProduct
+            new primaryPorts.UpsertProductModel
             {
                 Name = "Product1",
                 Price = 10,
@@ -76,14 +76,14 @@ public static class ProductFactory
                 CategoryId = CategoryFactory.Create()[0].ToEntity().Id.GetValueOrDefault()
             },
 
-            new primaryPorts.UpsertProduct
+            new primaryPorts.UpsertProductModel
             {
                 Name = "Product2",
                 Price = 23,
                 AvailableQuantity = 11,
                 CategoryId = CategoryFactory.Create()[1].ToEntity().Id.GetValueOrDefault()
             },
-            new primaryPorts.UpsertProduct
+            new primaryPorts.UpsertProductModel
             {
                 Name = "Product3",
                 Price = 30,
@@ -92,9 +92,9 @@ public static class ProductFactory
             }
         };
 
-    public static Product ToEntity(this Product product)
+    public static ProductDb ToEntity(this ProductDb productDb)
     {
-        product.Id = Guid.NewGuid();
-        return product;
+        productDb.Id = Guid.NewGuid();
+        return productDb;
     }
 }

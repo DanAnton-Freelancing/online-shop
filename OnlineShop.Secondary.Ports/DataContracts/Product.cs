@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OnlineShop.Secondary.Ports.DataContracts;
 
-public class Product : EditableEntity
+public class Product : Editable
 {
     public string Name { get; set; }
 
@@ -19,7 +19,7 @@ public class Product : EditableEntity
 
     public Guid CategoryId { get; set; }
 
-    public virtual Category Category { get; set; }
+    public virtual Category? Category { get; set; }
 
-    public virtual CartItem CartItem { get; set; }
+    public virtual CartItem? CartItem { get; set; }
 }

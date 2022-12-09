@@ -1,47 +1,48 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Domain.Aggregate;
+using OnlineShop.Domain.Entities;
 using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Adapters.Mappers;
 
 public static class UserMapper
 {
-    public static secondaryPorts.User MapToSecondary(this primaryPorts.RegisterUser user)
+    public static UserEntity MapToSecondary(this primaryPorts.RegisterUserModel userModel)
         => new()
         {
-            Email = user.Email,
-            Username = user.Username,
-            Password = user.Password,
-            FirstName = user.FirstName,
-            LastName = user.LastName
+            Email = userModel.Email,
+            Username = userModel.Username,
+            Password = userModel.Password,
+            FirstName = userModel.FirstName,
+            LastName = userModel.LastName
         };
 
-    public static secondaryPorts.CartItem MapToSecondary(this primaryPorts.UpsertCartItem upsertCartItem)
+    public static CartItemEntity MapToSecondary(this primaryPorts.UpsertCartItemModel upsertCartItemModel)
         => new()
         {
-            ProductId = upsertCartItem.ProductId,
-            Quantity = upsertCartItem.Quantity
+            ProductId = upsertCartItemModel.ProductId,
+            Quantity = upsertCartItemModel.Quantity
         };
 
-    public static primaryPorts.UserCart MapToPrimary(this secondaryPorts.UserCart userCart)
+    public static primaryPorts.UserCartModel MapToPrimary(this UserCartEntity userCartEntityDb)
         => new()
         {
-            Id = userCart.Id,
-            Total = userCart.Total,
-            CartItems = userCart.CartItems?.MapToPrimary()
+            Id = userCartEntityDb.Id,
+            Total = userCartEntityDb.Total,
+            CartItems = userCartEntityDb.CartItems?.MapToPrimary()
         };
 
-    private static List<primaryPorts.CartItem> MapToPrimary(this IEnumerable<secondaryPorts.CartItem> cartItems)
+    private static List<primaryPorts.CartItemModel> MapToPrimary(this IEnumerable<CartItemEntity> cartItems)
         => cartItems.Select(c => c.MapToPrimary()).ToList();
 
-    private static primaryPorts.CartItem MapToPrimary(this secondaryPorts.CartItem cartItem)
+    private static primaryPorts.CartItemModel MapToPrimary(this CartItemEntity cartItemEntityDb)
         => new()
         {
-            Id = cartItem.Id,
-            ProductId = cartItem.ProductId,
-            Quantity = cartItem.Quantity,
-            Price = cartItem.Price,
-            ProductName = cartItem.Product?.Name
+            Id = cartItemEntityDb.Id,
+            ProductId = cartItemEntityDb.ProductId,
+            Quantity = cartItemEntityDb.Quantity,
+            Price = cartItemEntityDb.Price,
+            ProductName = cartItemEntityDb.ProductEntity?.Name
         };
 }

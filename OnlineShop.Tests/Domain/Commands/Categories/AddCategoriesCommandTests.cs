@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OnlineShop.Domain.Implementations.Commands.Categories;
+using OnlineShop.Application.Implementations.Commands.Categories;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Factories;
@@ -12,7 +12,7 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Commands.Categories;
 
 [TestClass]
-public class AddCategoriesCommandTests : BaseCommandTests<Category>
+public class AddCategoriesCommandTests : BaseCommandTests<CategoryDb>
 {
     private AddCategoriesCommand.AddCategoriesCommandHandler _addProductsCommandHandler;
 
@@ -31,11 +31,11 @@ public class AddCategoriesCommandTests : BaseCommandTests<Category>
         //Arrange
         var categoriesIds = Entities.Select(l => l.Id.GetValueOrDefault()).ToList();
 
-        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<List<Category>>(),CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<List<CategoryDb>>(),CancellationToken.None))
             .ReturnsAsync(Result.Ok(Entities));
 
 
-        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<List<Category>>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<List<CategoryDb>>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(categoriesIds));
 
         //Act

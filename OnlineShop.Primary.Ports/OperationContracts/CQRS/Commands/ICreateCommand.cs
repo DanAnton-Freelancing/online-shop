@@ -1,4 +1,6 @@
-﻿namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands;
+﻿using OnlineShop.Domain.Entities;
+
+namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands;
 
 public interface ICreateCommand<T, out TI> : ICommand<TI>
 {

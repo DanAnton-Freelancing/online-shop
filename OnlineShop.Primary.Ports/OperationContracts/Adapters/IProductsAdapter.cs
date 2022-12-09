@@ -6,8 +6,8 @@ using System;
 
 namespace OnlineShop.Primary.Ports.OperationContracts.Adapters;
 
-public interface IProductsAdapter : ICrudAdapter<Product, UpsertProduct>
+public interface IProductsAdapter : ICrudAdapter<ProductModel, UpsertProductModel>
 {
-    Task<Result<Product>> GetById(Guid id, CancellationToken cancellationToken);
-    Task<Result<Guid>> InsertAsync(UpsertProduct entity, CancellationToken cancellationToken);
+    Task<Result<ProductModel>> GetById(Guid id, CancellationToken cancellationToken);
+    Task<Result<Guid>> InsertAsync(UpsertProductModel entity, CancellationToken cancellationToken);
 }

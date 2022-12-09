@@ -20,7 +20,7 @@ namespace OnlineShop.Tests.Primary.Adapters;
 [TestClass]
 public class ImagesAdapterTests : BaseTests
 {
-    private secondaryPorts.Image _image;
+    private secondaryPorts.ImageDb _imageDb;
     private ImagesAdapter _imagesAdapter;
     private Mock<IAmazonS3> _s3ClientMock;
 
@@ -29,7 +29,7 @@ public class ImagesAdapterTests : BaseTests
     {
         base.Initialize();
         _s3ClientMock = new Mock<IAmazonS3>();
-        _image = ImageFactory.Create();
+        _imageDb = ImageFactory.Create();
         _imagesAdapter = new ImagesAdapter(MediatorMock.Object, _s3ClientMock.Object);
     }
 
@@ -40,7 +40,7 @@ public class ImagesAdapterTests : BaseTests
         var s3Image = ImageFactory.S3Object();
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IGetImageByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(_image));
+            .ReturnsAsync(Result.Ok(_imageDb));
 
         _s3ClientMock.Setup(m => m.DoesS3BucketExistAsync(It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -49,10 +49,10 @@ public class ImagesAdapterTests : BaseTests
             .ReturnsAsync(s3Image);
 
         //Act
-        var result = await _imagesAdapter.Get(_image.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _imagesAdapter.Get(_imageDb.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Image>.AreEntriesEqual(result.Data, _image.MapToPrimary(s3Image)));
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.ImageModel>.AreEntriesEqual(result.Data, _imageDb.MapToPrimary(s3Image)));
     }
 
     [TestMethod]
@@ -62,7 +62,7 @@ public class ImagesAdapterTests : BaseTests
         var s3Image = ImageFactory.S3Object();
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IGetImageByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(_image));
+            .ReturnsAsync(Result.Ok(_imageDb));
 
         _s3ClientMock.Setup(m => m.DoesS3BucketExistAsync(It.IsAny<string>()))
             .ReturnsAsync(false);
@@ -71,9 +71,9 @@ public class ImagesAdapterTests : BaseTests
             .ReturnsAsync(s3Image);
 
         //Act
-        var result = await _imagesAdapter.Get(_image.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _imagesAdapter.Get(_imageDb.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.Image>.AreEntriesEqual(result.Data, new primaryPorts.Image()));
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.ImageModel>.AreEntriesEqual(result.Data, new primaryPorts.ImageModel()));
     }
 }

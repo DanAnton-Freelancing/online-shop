@@ -3,7 +3,7 @@ using Amazon.S3;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OnlineShop.Domain;
+using OnlineShop.Application;
 using OnlineShop.Primary.Adapters.Implementation;
 using OnlineShop.Shared.Ports.Extensions;
 
@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
         {
             typeof(CrudAdapter<,>).Assembly
         });
-        services.AddDomain(secret);
+        services.AddApplication(secret);
         services.AddMediatR(Assembly.GetExecutingAssembly());
 
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());

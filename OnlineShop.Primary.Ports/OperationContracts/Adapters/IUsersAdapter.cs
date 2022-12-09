@@ -7,6 +7,6 @@ namespace OnlineShop.Primary.Ports.OperationContracts.Adapters;
 
 public interface IUsersAdapter
 {
-    Task<Result<string>> LoginAsync(LoginUser user, CancellationToken cancellationToken);
-    Task<Result> RegisterAsync(RegisterUser user, CancellationToken cancellationToken);
+    Task<Result<string>> LoginAsync(LoginUserModel userModel, CancellationToken cancellationToken);
+    Task<Result> RegisterAsync(RegisterUserModel userModel, CancellationToken cancellationToken);
 }

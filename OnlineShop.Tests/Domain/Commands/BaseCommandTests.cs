@@ -7,7 +7,7 @@ using OnlineShop.Secondary.Ports.OperationContracts;
 namespace OnlineShop.Tests.Domain.Commands;
 
 public abstract class BaseCommandTests<T> : BaseTests
-    where T : EditableEntity
+    where T : EditableDbEntity
 {
     protected List<T> Entities;
     protected Mock<IWriterRepository> WriterRepositoryMock;

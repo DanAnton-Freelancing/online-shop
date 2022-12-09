@@ -33,7 +33,7 @@ public class WriterRepositoryTests
     public async Task GivenEntity_WhenAddAsync_ThenShouldAddEntityToDbContext()
     {
         //Arrange
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
@@ -52,7 +52,7 @@ public class WriterRepositoryTests
     public async Task GivenEntities_WhenAddAsync_ThenShouldAddEntitiesToDbContext()
     {
         //Arrange
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
@@ -71,7 +71,7 @@ public class WriterRepositoryTests
     public async Task GivenEntities_WhenSaveAsync_ThenShouldSaveEntitiesToDbContext()
     {
         //Arrange
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
@@ -84,7 +84,7 @@ public class WriterRepositoryTests
         //Act
         var result = await _repository.SaveAsync(entities, CancellationToken.None);
 
-        var dbContextEntity = await _context.Set<FakeEntity>().ToListAsync();
+        var dbContextEntity = await _context.Set<FakeDbEntity>().ToListAsync();
 
         //Assert
         Assert.IsTrue(AreListsEqual(result.Data, dbContextEntity.Select(c => c.Id.GetValueOrDefault()).AsEnumerable()));
@@ -94,7 +94,7 @@ public class WriterRepositoryTests
     public async Task GivenEntity_WhenSaveAsync_ThenShouldSaveEntityToDbContext()
     {
         //Arrange
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
@@ -107,7 +107,7 @@ public class WriterRepositoryTests
         //Act
         var result = await _repository.SaveAsync(entities.First(), CancellationToken.None);
 
-        var dbContextEntity = await _context.Set<FakeEntity>().FirstAsync();
+        var dbContextEntity = await _context.Set<FakeDbEntity>().FirstAsync();
 
         //Assert
         Assert.AreEqual(result.Data, dbContextEntity.Id);
@@ -117,7 +117,7 @@ public class WriterRepositoryTests
     public async Task GivenNotExistingEntityId_WhenDeleteAsync_ThenShouldMarkAsDeleted()
     {
         //Arrange
-        var entity = new FakeEntity
+        var entity = new FakeDbEntity
         {
             Name = "Fake entity"
         };
@@ -126,7 +126,7 @@ public class WriterRepositoryTests
         await _repository.SaveAsync(entity, CancellationToken.None);
 
         //Act
-        var result = await _repository.DeleteAsync<FakeEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _repository.DeleteAsync<FakeDbEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
        
 
         //Assert
@@ -139,7 +139,7 @@ public class WriterRepositoryTests
     public async Task GivenExistingEntityId_WhenDeleteAsync_ThenShouldReturnError()
     {
         //Arrange
-        var entity = new FakeEntity
+        var entity = new FakeDbEntity
         {
             Name = "Fake entity"
         };
@@ -148,7 +148,7 @@ public class WriterRepositoryTests
         await _repository.SaveAsync(entity, CancellationToken.None);
 
         //Act
-        var result = await _repository.DeleteAsync<FakeEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _repository.DeleteAsync<FakeDbEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
 
 
         //Assert
@@ -161,14 +161,14 @@ public class WriterRepositoryTests
     public async Task GivenExistingEntityId_WhenDeleteAsync_ThenShouldDelete()
     {
         //Arrange
-        var entity = new FakeEntity
+        var entity = new FakeDbEntity
         {
             Name = "Fake entity"
         };
 
         await _repository.AddAsync(entity, CancellationToken.None);
         await _repository.SaveAsync(entity, CancellationToken.None);
-        await _repository.DeleteAsync<FakeEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
+        await _repository.DeleteAsync<FakeDbEntity>(entity.Id.GetValueOrDefault(), CancellationToken.None);
         
         //Act
         var result = await _repository.SaveAsync(CancellationToken.None);
@@ -176,7 +176,7 @@ public class WriterRepositoryTests
 
         //Assert
         Assert.IsTrue(result.Success);
-        Assert.IsNull(_context.Set<FakeEntity>().FirstOrDefault());
+        Assert.IsNull(_context.Set<FakeDbEntity>().FirstOrDefault());
     }
 
 
@@ -184,7 +184,7 @@ public class WriterRepositoryTests
     public async Task WhenGetAsyncFromEmptyDb_ThenShouldReturnError()
     {
         //Act
-        var result = await _repository.GetAsync<FakeEntity>(CancellationToken.None);
+        var result = await _repository.GetAsync<FakeDbEntity>(CancellationToken.None);
 
         //Assert
         Assert.IsTrue(result.HasErrors);
@@ -195,7 +195,7 @@ public class WriterRepositoryTests
     {
         //Arrange
         var entityId = Guid.NewGuid();
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
@@ -206,24 +206,24 @@ public class WriterRepositoryTests
         await _context.SaveChangesAsync();
 
         //Act
-        var result = await _repository.GetOneAsync<FakeEntity>(c => c.Id == entityId, CancellationToken.None);
+        var result = await _repository.GetOneAsync<FakeDbEntity>(c => c.Id == entityId, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<FakeEntity>.AreEntriesEqual(result.Data, entities.First()));
+        Assert.IsTrue(EntitiesAssertionsUtils<FakeDbEntity>.AreEntriesEqual(result.Data, entities.First()));
     }
 
     [TestMethod]
     public async Task WhenGetWithFilterAsync_ThenShouldReturnEntities()
     {
         //Arrange
-        var entities = new List<FakeEntity>
+        var entities = new List<FakeDbEntity>
         {
             new()
             {
                 Id = Guid.NewGuid(),
                 Name = "Entity 1",
                 Deleted = false,
-                Child = new FakeEntityChild
+                Child = new FakeDbEntityChild
                 {
                     Id = Guid.NewGuid()
                 }
@@ -233,7 +233,7 @@ public class WriterRepositoryTests
                 Id = Guid.NewGuid(),
                 Name = "Entity 2",
                 Deleted = true,
-                Child = new FakeEntityChild
+                Child = new FakeDbEntityChild
                 {
                     Id = Guid.NewGuid()
                 }
@@ -243,7 +243,7 @@ public class WriterRepositoryTests
                 Id = Guid.NewGuid(),
                 Name = "Entity 3",
                 Deleted = false,
-                Child = new FakeEntityChild
+                Child = new FakeDbEntityChild
                 {
                     Id = Guid.NewGuid()
                 }
@@ -253,11 +253,11 @@ public class WriterRepositoryTests
         await _context.SaveChangesAsync();
 
         //Act
-        var result = await _repository.GetAsync<FakeEntity>(CancellationToken.None, c => c.Name.Contains("Entity"),
+        var result = await _repository.GetAsync<FakeDbEntity>(CancellationToken.None, c => c.Name.Contains("Entity"),
             c => c.OrderBy(a => a.Name), c => c.Include(a => a.Child));
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<FakeEntity>.AreListsEqual(result.Data, entities));
+        Assert.IsTrue(EntitiesAssertionsUtils<FakeDbEntity>.AreListsEqual(result.Data, entities));
     }
 
     private static bool AreListsEqual(IEnumerable<Guid> list1, IEnumerable<Guid> list2) => !list1.Except(list2).Any();

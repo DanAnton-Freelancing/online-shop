@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OnlineShop.Domain.Implementations.Queries;
+using OnlineShop.Application.Implementations.Queries;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
@@ -18,14 +18,14 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class GetImageByIdQueryTests : BaseQueryTests
 {
-    private Image _image;
+    private ImageDb _imageDb;
     private GetImageByIdQuery.GetImageByIdQueryHandler _getImageByIdQueryHandler;
 
     [TestInitialize]
     public override void Initialize()
     {
         base.Initialize();
-        _image = ImageFactory.Create().ToEntity();
+        _imageDb = ImageFactory.Create().ToEntity();
         _getImageByIdQueryHandler = new GetImageByIdQuery.GetImageByIdQueryHandler(ReaderRepositoryMock.Object);
 
     }
@@ -36,20 +36,20 @@ public class GetImageByIdQueryTests : BaseQueryTests
         //Arrange
         var imageQuery = new GetImageByIdQuery
         {
-            ImageId = _image.Id.GetValueOrDefault()
+            ImageId = _imageDb.Id.GetValueOrDefault()
         };
 
-        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Image, bool>>>(),
-                CancellationToken.None, It.IsAny<Func<IQueryable<Image>, IOrderedQueryable<Image>>>(),
-                It.IsAny<Func<IQueryable<Image>, IIncludableQueryable<Image, object>>>()))
-            .ReturnsAsync(Result.Ok(_image));
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<ImageDb, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<ImageDb>, IOrderedQueryable<ImageDb>>>(),
+                It.IsAny<Func<IQueryable<ImageDb>, IIncludableQueryable<ImageDb, object>>>()))
+            .ReturnsAsync(Result.Ok(_imageDb));
 
         //Act
         var result = await _getImageByIdQueryHandler.Handle(imageQuery, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<Image>.AreEntriesEqual(result.Data, _image));
-        Assert.AreEqual(imageQuery.ImageId, _image.Id.GetValueOrDefault());
+        Assert.IsTrue(EntitiesAssertionsUtils<ImageDb>.AreEntriesEqual(result.Data, _imageDb));
+        Assert.AreEqual(imageQuery.ImageId, _imageDb.Id.GetValueOrDefault());
 
     }
 }

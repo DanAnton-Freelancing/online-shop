@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Secondary.Ports.OperationContracts;
 using OnlineShop.Shared.Ports.DataContracts;
@@ -18,7 +17,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
     {
     }
 
-    public async Task<Result<T>> AddAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
+    public async Task<Result<T>> AddAsync<T>(T entity, CancellationToken cancellationToken) where T : Editable
     {
         try
         {
@@ -32,7 +31,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
     }
 
     public async Task<Result<List<T>>> AddAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken)
-        where T : EditableEntity
+        where T : Editable
     {
         var entitiesList = entities?.ToList();
         if (entitiesList is not { Count: > 0 })
@@ -51,7 +50,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
         }
     }
 
-    public async Task<Result<Guid>> SaveAsync<T>(T entity, CancellationToken cancellationToken) where T : EditableEntity
+    public async Task<Result<Guid>> SaveAsync<T>(T entity, CancellationToken cancellationToken) where T : Editable
     {
         var count = await DbContext.SaveChangesAsync(cancellationToken);
         return count > 0
@@ -66,7 +65,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
             : Result.Error<Guid>(HttpStatusCode.NotModified, "[NotDeleted]", ErrorMessages.NotChanged);
     }
 
-    public async Task<Result<List<Guid>>> SaveAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken) where T : EditableEntity
+    public async Task<Result<List<Guid>>> SaveAsync<T>(IEnumerable<T> entities, CancellationToken cancellationToken) where T : Editable
     {
         var count = await DbContext.SaveChangesAsync(cancellationToken);
         return count > 0
@@ -76,11 +75,11 @@ public class WriterRepository : BaseRepository, IWriterRepository
                 ErrorMessages.NotChanged);
     }
 
-    public async Task<Result> DeleteAsync<T>(Guid id, CancellationToken cancellationToken) where T : EditableEntity
+    public async Task<Result> DeleteAsync<T>(Guid id, CancellationToken cancellationToken) where T : Editable
     {
         try
         {
-            var dbEntity = await DbContext.Set<T>().FindAsync(id);
+            var dbEntity = await DbContext.Set<T>().FindAsync(id, cancellationToken);
             if (dbEntity == null)
                 return Result.Error(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound);
 
@@ -95,7 +94,7 @@ public class WriterRepository : BaseRepository, IWriterRepository
     }
 
     private async Task<Result<T>> InsertAsync<T>(T entity, CancellationToken cancellationToken)
-        where T : EditableEntity
+        where T : Editable
     {
         if (entity.Id != null) 
             return Result.Ok(entity);

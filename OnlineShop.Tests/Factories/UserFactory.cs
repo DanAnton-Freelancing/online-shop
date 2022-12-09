@@ -15,44 +15,44 @@ public static class UserFactory
            "QCA9HCvTKZhBBWsB5rWC3uSqLL6PfLAqLH6gNzeNRXfkpPscpm9CYBSxyshDmxsdm" +
            "UBLdsZ3Wfk2KsDAL6C9tNdtmLby6f5gWcf8PKY8SjKwGXua9XMbFLsfn4t3HHF67rANxuYybac";
 
-    public static secondaryPorts.User ToEntity(this secondaryPorts.User user)
+    public static secondaryPorts.UserDb ToEntity(this secondaryPorts.UserDb userDb)
     {
-        user.Id = Guid.NewGuid();
-        return user;
+        userDb.Id = Guid.NewGuid();
+        return userDb;
     }
 
-    public static secondaryPorts.User Create()
+    public static secondaryPorts.UserDb Create()
         => new()
         {
             Email = "user1@example.com",
             FirstName = "user1",
             LastName = "user1",
-            UserCart = new secondaryPorts.UserCart(),
+            UserCartDb = new secondaryPorts.UserCartDb(),
             Password = "Centric1!",
             Username = "user1"
         };
 
-    public static secondaryPorts.UserCart CreateUserCart()
+    public static secondaryPorts.UserCartDb CreateUserCart()
         => new()
         {
-            CartItems = new List<secondaryPorts.CartItem>()
+            CartItems = new List<secondaryPorts.CartItemDb>()
         };
 
-    public static primaryPorts.UserCart CreateUserDetails()
+    public static primaryPorts.UserCartModel CreateUserDetails()
         => new()
         {
             Id = Guid.NewGuid(),
-            CartItems = new List<primaryPorts.CartItem>(),
+            CartItems = new List<primaryPorts.CartItemModel>(),
             Total = 0
         };
 
-    public static void ToEntity(this primaryPorts.UserCart userCart, Guid id)
-        => userCart.Id = id;
+    public static void ToEntity(this primaryPorts.UserCartModel userCartModel, Guid id)
+        => userCartModel.Id = id;
 
-    public static void ToEntity(this secondaryPorts.UserCart userCart)
-        => userCart.Id = Guid.NewGuid();
+    public static void ToEntity(this secondaryPorts.UserCartDb userCartDb)
+        => userCartDb.Id = Guid.NewGuid();
 
-    public static primaryPorts.RegisterUser CreateRegisterUser()
+    public static primaryPorts.RegisterUserModel CreateRegisterUser()
         => new()
         {
             Email = "user1@example.com",
@@ -62,14 +62,14 @@ public static class UserFactory
             Username = "user1"
         };
 
-    public static primaryPorts.LoginUser CreateLoginUser()
+    public static primaryPorts.LoginUserModel CreateLoginUser()
         => new()
         {
             Password = "Centric1!",
             Username = "user1"
         };
 
-    public static void AddSalt(this secondaryPorts.User user)
+    public static void AddSalt(this secondaryPorts.UserDb userDb)
     {
         var salt = new byte[128 / 8];
         using (var rng = RandomNumberGenerator.Create())
@@ -77,12 +77,12 @@ public static class UserFactory
             rng.GetBytes(salt);
         }
 
-        user.Salt = salt;
+        userDb.Salt = salt;
     }
 
-    public static void AddPasswordHash(this secondaryPorts.User user)
-        => user.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(user.Password,
-            user.Salt,
+    public static void AddPasswordHash(this secondaryPorts.UserDb userDb)
+        => userDb.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(userDb.Password,
+            userDb.Salt,
             KeyDerivationPrf.HMACSHA1,
             10000,
             256 / 8));

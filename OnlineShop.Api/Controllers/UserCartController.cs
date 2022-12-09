@@ -24,8 +24,8 @@ public class UserCartController : ControllerBase
             .ToAsyncActionResult();
 
     [HttpPost]
-    public async Task<ActionResult> AddItemAsync([FromBody] UpsertCartItem cartItem, CancellationToken cancellationToken)
-        => await _userCartAdapter.AddItemAsync(cartItem, cartItem.UserId, cancellationToken)
+    public async Task<ActionResult> AddItemAsync([FromBody] UpsertCartItemModel cartItemModel, CancellationToken cancellationToken)
+        => await _userCartAdapter.AddItemAsync(cartItemModel, cartItemModel.UserId, cancellationToken)
             .ToAsyncActionResult();
 
     [HttpPut]

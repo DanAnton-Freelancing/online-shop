@@ -2,7 +2,7 @@
 
 namespace OnlineShop.Secondary.Ports.DataContracts;
 
-public class CartItem : EditableEntity
+public class CartItem : Editable
 {
     public double Quantity { get; set; }
     public decimal Price { get; set; }

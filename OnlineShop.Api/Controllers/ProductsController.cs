@@ -30,14 +30,14 @@ public class ProductsController : ControllerBase
             .ToAsyncActionResult();
 
     [HttpPost]
-    public async Task<ActionResult> InsertAsync([FromForm] UpsertProduct product, CancellationToken cancellationToken)
-        => await _productsAdapter.InsertAsync(product, cancellationToken)
+    public async Task<ActionResult> InsertAsync([FromForm] UpsertProductModel productModel, CancellationToken cancellationToken)
+        => await _productsAdapter.InsertAsync(productModel, cancellationToken)
             .ToAsyncActionResult();
 
     [HttpPut]
     public async Task<ActionResult> UpdateAsync([FromQuery] Guid id,
-        [FromForm] UpsertProduct upsertProduct, CancellationToken cancellationToken)
-        => await _productsAdapter.UpdateAsync(id, upsertProduct, cancellationToken)
+        [FromForm] UpsertProductModel upsertProductModel, CancellationToken cancellationToken)
+        => await _productsAdapter.UpdateAsync(id, upsertProductModel, cancellationToken)
             .ToAsyncActionResult();
 
     [HttpDelete]

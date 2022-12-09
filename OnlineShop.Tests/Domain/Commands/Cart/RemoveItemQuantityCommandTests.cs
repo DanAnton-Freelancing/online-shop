@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OnlineShop.Domain.Implementations.Commands.Cart;
+using OnlineShop.Application.Implementations.Commands.Cart;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
@@ -17,11 +17,11 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Commands.Cart;
 
 [TestClass]
-public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItem>
+public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItemDb>
 {
     private RemoveItemFromCartCommand.RemoveItemFromCartCommandHandler _removeItemFromCartCommandHandler;
-    private UserCart _userCart;
-    private CartItem _cartItem;
+    private UserCartDb _userCartDb;
+    private CartItemDb _cartItemDb;
 
     [TestInitialize]
     public override void Initialize()
@@ -29,25 +29,25 @@ public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItem>
         base.Initialize();
 
         _removeItemFromCartCommandHandler = new RemoveItemFromCartCommand.RemoveItemFromCartCommandHandler(WriterRepositoryMock.Object);
-        _userCart = UserFactory.CreateUserCart();
-        _cartItem = UserCartFactory.CreateCartItem(_userCart);
+        _userCartDb = UserFactory.CreateUserCart();
+        _cartItemDb = UserCartFactory.CreateCartItem(_userCartDb);
 
-        WriterRepositoryMock.Setup(p => p.AddAsync(It.IsAny<Product>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_cartItem.Product));
-        WriterRepositoryMock.Setup(p => p.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_cartItem.Product.Id.GetValueOrDefault()));
+        WriterRepositoryMock.Setup(p => p.AddAsync(It.IsAny<ProductDb>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_cartItemDb.ProductDb));
+        WriterRepositoryMock.Setup(p => p.SaveAsync(It.IsAny<ProductDb>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_cartItemDb.ProductDb.Id.GetValueOrDefault()));
 
-        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<CartItem, bool>>>(),
-                CancellationToken.None, It.IsAny<Func<IQueryable<CartItem>, IOrderedQueryable<CartItem>>>(),
-                It.IsAny<Func<IQueryable<CartItem>, IIncludableQueryable<CartItem, object>>>()))
-            .ReturnsAsync(Result.Ok(_cartItem));
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<CartItemDb, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<CartItemDb>, IOrderedQueryable<CartItemDb>>>(),
+                It.IsAny<Func<IQueryable<CartItemDb>, IIncludableQueryable<CartItemDb, object>>>()))
+            .ReturnsAsync(Result.Ok(_cartItemDb));
 
-        WriterRepositoryMock.Setup(uc => uc.AddAsync(It.IsAny<CartItem>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_cartItem));
-        WriterRepositoryMock.Setup(uc => uc.SaveAsync(It.IsAny<CartItem>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_cartItem.Id.GetValueOrDefault()));
+        WriterRepositoryMock.Setup(uc => uc.AddAsync(It.IsAny<CartItemDb>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_cartItemDb));
+        WriterRepositoryMock.Setup(uc => uc.SaveAsync(It.IsAny<CartItemDb>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_cartItemDb.Id.GetValueOrDefault()));
 
-        WriterRepositoryMock.Setup(ci => ci.DeleteAsync<CartItem>(It.IsAny<Guid>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(ci => ci.DeleteAsync<CartItemDb>(It.IsAny<Guid>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok());
 
         WriterRepositoryMock.Setup(uc => uc.SaveAsync(CancellationToken.None))
@@ -60,7 +60,7 @@ public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItem>
     {
         //Act
         var actualResult = await _removeItemFromCartCommandHandler.Handle(
-            new RemoveItemFromCartCommand{CartItemId = _cartItem.Id.GetValueOrDefault()}, CancellationToken.None);
+            new RemoveItemFromCartCommand{CartItemId = _cartItemDb.Id.GetValueOrDefault()}, CancellationToken.None);
 
         //Assert
         Assert.IsTrue(actualResult.Success);
@@ -70,10 +70,10 @@ public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItem>
     public async Task GivenInvalidCartItemId_WhenDeleteItemAsync_ThenShouldReturnNotFound()
     {
         //Arrange
-        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<CartItem, bool>>>(),
-                CancellationToken.None, It.IsAny<Func<IQueryable<CartItem>, IOrderedQueryable<CartItem>>>(),
-                It.IsAny<Func<IQueryable<CartItem>, IIncludableQueryable<CartItem, object>>>()))
-                            .ReturnsAsync(Result.Error<CartItem>(HttpStatusCode.NotFound, "[NotFound]",
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<CartItemDb, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<CartItemDb>, IOrderedQueryable<CartItemDb>>>(),
+                It.IsAny<Func<IQueryable<CartItemDb>, IIncludableQueryable<CartItemDb, object>>>()))
+                            .ReturnsAsync(Result.Error<CartItemDb>(HttpStatusCode.NotFound, "[NotFound]",
                                 ErrorMessages.NotFound));
 
         //Act
@@ -81,7 +81,7 @@ public class RemoveItemQuantityCommandTests : BaseCommandTests<CartItem>
             new RemoveItemFromCartCommand { CartItemId = Guid.Empty }, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<CartItem>.IsCorrectError(HttpStatusCode.NotFound,
+        Assert.IsTrue(EntitiesAssertionsUtils<CartItemDb>.IsCorrectError(HttpStatusCode.NotFound,
             "[NotFound]",
             actualResult.HttpStatusCode,
             actualResult.ErrorMessage));

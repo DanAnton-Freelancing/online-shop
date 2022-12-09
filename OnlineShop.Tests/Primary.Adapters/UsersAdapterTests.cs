@@ -18,8 +18,8 @@ namespace OnlineShop.Tests.Primary.Adapters;
 [TestClass]
 public class UsersAdapterTests : BaseTests
 {
-    private primaryPorts.LoginUser _loginUser;
-    private primaryPorts.RegisterUser _registerUser;
+    private primaryPorts.LoginUserModel _loginUserModel;
+    private primaryPorts.RegisterUserModel _registerUserModel;
     private UsersAdapter _usersAdapter;
 
     [TestInitialize]
@@ -27,8 +27,8 @@ public class UsersAdapterTests : BaseTests
     {
         base.Initialize();
         _usersAdapter = new UsersAdapter(MediatorMock.Object);
-        _registerUser = UserFactory.CreateRegisterUser();
-        _loginUser = UserFactory.CreateLoginUser();
+        _registerUserModel = UserFactory.CreateRegisterUser();
+        _loginUserModel = UserFactory.CreateLoginUser();
     }
 
     [TestMethod]
@@ -39,7 +39,7 @@ public class UsersAdapterTests : BaseTests
             .ReturnsAsync(Result.Ok());
 
         //Act
-        var actualResult = await _usersAdapter.RegisterAsync(_registerUser, CancellationToken.None);
+        var actualResult = await _usersAdapter.RegisterAsync(_registerUserModel, CancellationToken.None);
 
         //Assert
         Assert.IsTrue(actualResult.Success);
@@ -54,10 +54,10 @@ public class UsersAdapterTests : BaseTests
                 "[AlreadyExist]",
                 ErrorMessages.UserAlreadyExist));
         //Act
-        var actualResult = await _usersAdapter.RegisterAsync(_registerUser, CancellationToken.None);
+        var actualResult = await _usersAdapter.RegisterAsync(_registerUserModel, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.Conflict,
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserModel>.IsCorrectError(HttpStatusCode.Conflict,
             "[AlreadyExist]",
             actualResult.HttpStatusCode,
             actualResult.ErrorMessage));
@@ -73,7 +73,7 @@ public class UsersAdapterTests : BaseTests
             .ReturnsAsync(Result.Ok(token));
 
         //Act
-        var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
+        var actualResult = await _usersAdapter.LoginAsync(_loginUserModel, CancellationToken.None);
 
         //Assert
         Assert.IsTrue(actualResult.Success);
@@ -90,10 +90,10 @@ public class UsersAdapterTests : BaseTests
                 ErrorMessages.NotFound));
 
         //Act
-        var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
+        var actualResult = await _usersAdapter.LoginAsync(_loginUserModel, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserModel>.IsCorrectError(HttpStatusCode.NotFound,
             "[NotFound]",
             actualResult.HttpStatusCode,
             actualResult.ErrorMessage));
@@ -103,16 +103,16 @@ public class UsersAdapterTests : BaseTests
     public async Task GivenCorrectUsernameAndWrongPassword_WhenLoginAsync_ThenReturnResultNotFound()
     {
         //Arrange
-        _loginUser.Password = Guid.NewGuid().ToString();
+        _loginUserModel.Password = Guid.NewGuid().ToString();
         MediatorMock.Setup(m => m.Send(It.IsAny<ILoginQuery>(), CancellationToken.None))
             .ReturnsAsync(Result.Error<string>(HttpStatusCode.NotFound, "[NotFound]",
                 ErrorMessages.NotFound));
 
         //Act
-        var actualResult = await _usersAdapter.LoginAsync(_loginUser, CancellationToken.None);
+        var actualResult = await _usersAdapter.LoginAsync(_loginUserModel, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.User>.IsCorrectError(HttpStatusCode.NotFound,
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserModel>.IsCorrectError(HttpStatusCode.NotFound,
             "[NotFound]",
             actualResult.HttpStatusCode,
             actualResult.ErrorMessage));

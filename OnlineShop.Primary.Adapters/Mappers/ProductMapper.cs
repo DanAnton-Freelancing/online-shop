@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using secondaryPorts = OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Secondary.Ports.DataContracts;
 using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Adapters.Mappers;
@@ -10,58 +10,58 @@ public static class ProductMapper
 {
     private static readonly Random Random = new();
 
-    public static List<primaryPorts.Product> MapToPrimary(this List<secondaryPorts.Product> products)
+    public static List<primaryPorts.ProductModel> MapToPrimary(this List<Product> products)
         => products.Select(l => l.MapToPrimary())
             .ToList();
 
-    public static primaryPorts.Product MapToPrimary(this secondaryPorts.Product product)
+    public static primaryPorts.ProductModel MapToPrimary(this Product productDb)
         => new()
         {
-            Id = product.Id.GetValueOrDefault(),
-            Name = product.Name,
-            Code = product.Code,
-            Price = product.Price.GetValueOrDefault(),
-            AvailableQuantity = product.AvailableQuantity.GetValueOrDefault(),
-            IsAvailable = product.AvailableQuantity > 0,
-            CategoryId = product.CategoryId,
-            Description = product.Description,
-            ImagesIds = product.Images?.Select(s => s.Id.GetValueOrDefault()).ToList()
+            Id = productDb.Id.GetValueOrDefault(),
+            Name = productDb.Name,
+            Code = productDb.Code,
+            Price = productDb.Price.GetValueOrDefault(),
+            AvailableQuantity = productDb.AvailableQuantity.GetValueOrDefault(),
+            IsAvailable = productDb.AvailableQuantity > 0,
+            CategoryId = productDb.CategoryId,
+            Description = productDb.Description,
+            ImagesIds = productDb.Images?.Select(s => s.Id.GetValueOrDefault()).ToList()
         };
 
-    public static List<secondaryPorts.Product> MapToSecondary(this IList<primaryPorts.UpsertProduct> products)
+    public static List<Product> MapToSecondary(this IList<primaryPorts.UpsertProductModel> products)
         => products.Select(r => r.MapToUpsertSecondary())
             .ToList();
 
-    public static secondaryPorts.Product MapToSecondary(this primaryPorts.UpsertProduct upsertProduct, IList<string> imagesKeys)
+    public static Product MapToSecondary(this primaryPorts.UpsertProductModel upsertProductModel, IList<string> imagesKeys)
         => new()
         {
-            Name = upsertProduct.Name,
-            Price = upsertProduct.Price,
-            AvailableQuantity = upsertProduct.AvailableQuantity,
-            CategoryId = upsertProduct.CategoryId,
-            Description = upsertProduct.Description,
-            Images = imagesKeys.Select(i => new secondaryPorts.Image { Key = i }).ToList(),
+            Name = upsertProductModel.Name,
+            Price = upsertProductModel.Price,
+            AvailableQuantity = upsertProductModel.AvailableQuantity,
+            CategoryId = upsertProductModel.CategoryId,
+            Description = upsertProductModel.Description,
+            Images = imagesKeys.Select(i => new Image { Key = i }).ToList(),
             Code = RandomString()
 
         };
-    public static secondaryPorts.Product MapToSecondary(this primaryPorts.UpsertProduct upsertProduct)
+    public static Product MapToSecondary(this primaryPorts.UpsertProductModel upsertProductModel)
         => new()
         {
-            Name = upsertProduct.Name,
-            Price = upsertProduct.Price,
-            AvailableQuantity = upsertProduct.AvailableQuantity,
-            CategoryId = upsertProduct.CategoryId,
+            Name = upsertProductModel.Name,
+            Price = upsertProductModel.Price,
+            AvailableQuantity = upsertProductModel.AvailableQuantity,
+            CategoryId = upsertProductModel.CategoryId,
             Code = RandomString()
         };
 
-    private static secondaryPorts.Product MapToUpsertSecondary(this primaryPorts.UpsertProduct upsertProduct)
+    private static Product MapToUpsertSecondary(this primaryPorts.UpsertProductModel upsertProductModel)
         => new()
         {
-            Name = upsertProduct.Name,
-            Price = upsertProduct.Price,
-            AvailableQuantity = upsertProduct.AvailableQuantity,
-            CategoryId = upsertProduct.CategoryId,
-            Description = upsertProduct.Description,
+            Name = upsertProductModel.Name,
+            Price = upsertProductModel.Price,
+            AvailableQuantity = upsertProductModel.AvailableQuantity,
+            CategoryId = upsertProductModel.CategoryId,
+            Description = upsertProductModel.Description,
             Code = RandomString()
         };
 

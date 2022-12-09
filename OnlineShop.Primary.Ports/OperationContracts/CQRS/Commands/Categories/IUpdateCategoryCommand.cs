@@ -1,9 +1,9 @@
 ﻿using System;
-using OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Domain.Entities;
 using OnlineShop.Shared.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Categories;
 
-public interface IUpdateCategoryCommand : IUpdateCommand<Category, Result<Guid>>
+public interface IUpdateCategoryCommand : IUpdateCommand<CategoryEntity, Result<Guid>>
 {
 }

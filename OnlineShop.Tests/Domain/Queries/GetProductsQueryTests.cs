@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OnlineShop.Domain.Implementations.Queries;
+using OnlineShop.Application.Implementations.Queries;
 using OnlineShop.Secondary.Ports.DataContracts;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
@@ -18,7 +18,7 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class GetProductsQueryTests: BaseQueryTests
 {
-    private List<Product> _products;
+    private List<ProductDb> _products;
     private GetProductsQuery.GetProductsQueryHandler _getProductsQueryHandler;
 
     [TestInitialize]
@@ -35,15 +35,15 @@ public class GetProductsQueryTests: BaseQueryTests
     {
         //Arrange
         ReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None,
-                It.IsAny<Expression<Func<Product, bool>>>(),It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
+                It.IsAny<Expression<Func<ProductDb, bool>>>(),It.IsAny<Func<IQueryable<ProductDb>, IOrderedQueryable<ProductDb>>>(),
+                It.IsAny<Func<IQueryable<ProductDb>, IIncludableQueryable<ProductDb, object>>>()))
             .ReturnsAsync(Result.Ok(_products));
 
         //Act
         var result = await _getProductsQueryHandler.Handle(new GetProductsQuery(), CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<Product>.AreListsEqual(result.Data, _products));
+        Assert.IsTrue(EntitiesAssertionsUtils<ProductDb>.AreListsEqual(result.Data, _products));
 
     }
 }

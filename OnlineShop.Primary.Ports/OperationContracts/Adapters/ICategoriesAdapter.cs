@@ -2,4 +2,4 @@
 
 namespace OnlineShop.Primary.Ports.OperationContracts.Adapters;
 
-public interface ICategoriesAdapter : ICrudAdapter<Category, UpsertCategory> { }
+public interface ICategoriesAdapter : ICrudAdapter<CategoryModel, UpsertCategoryModel> { }

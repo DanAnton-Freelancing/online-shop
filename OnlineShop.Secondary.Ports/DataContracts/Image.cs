@@ -2,7 +2,7 @@
 
 namespace OnlineShop.Secondary.Ports.DataContracts;
 
-public class Image : EditableEntity
+public class Image : Editable
 {
     public string Key { get; set; }
     public Guid ProductId { get; set; }

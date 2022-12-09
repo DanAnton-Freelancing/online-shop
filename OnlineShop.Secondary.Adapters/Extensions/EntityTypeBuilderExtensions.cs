@@ -7,7 +7,7 @@ namespace OnlineShop.Secondary.Adapters.Extensions;
 public static class EntityTypeBuilderExtensions
 {
     public static EntityTypeBuilder<T> AddDefaultConfigsForDbEntity<T>(this EntityTypeBuilder<T> builder)
-        where T : EditableEntity
+        where T : Editable
     {
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id)

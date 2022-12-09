@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace OnlineShop.Tests.TestDouble
 {
-    public class FakeEntityConfiguration : IEntityTypeConfiguration<FakeEntity>
+    public class FakeEntityConfiguration : IEntityTypeConfiguration<FakeDbEntity>
     {
-        public void Configure(EntityTypeBuilder<FakeEntity> builder)
+        public void Configure(EntityTypeBuilder<FakeDbEntity> builder)
         {
             builder.HasKey(e => e.Id);
             builder.Property(c => c.Id);

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineShop.Domain\OnlineShop.Domain.csproj" />
+    <ProjectReference Include="..\OnlineShop.Primary.Ports\OnlineShop.Primary.Ports.csproj" />
+    <ProjectReference Include="..\OnlineShop.Secondary.Ports\OnlineShop.Secondary.Ports.csproj" />
+    <ProjectReference Include="..\OnlineShop.Shared.Ports\OnlineShop.Shared.Ports.csproj" />
+  </ItemGroup>
+
+</Project>

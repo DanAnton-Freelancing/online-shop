@@ -1,11 +1,11 @@
 ﻿using System;
-using OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Domain.Aggregate;
 using OnlineShop.Shared.Ports.DataContracts;
 
 namespace OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Cart;
 
 public interface IAddItemToCartCommand : ICommand<Result>
 {
-    CartItem CartItem { get; set; }
+    CartItemEntity CartItemEntity { get; set; }
     Guid UserId { get; set; }
 }
