@@ -31,10 +31,8 @@ public static class CartItemMapper
         {
             Id = cartItemEntity.Id,
             Price = cartItemEntity.Price,
-            Product = cartItemEntity.ProductEntity?.MapToPorts(),
             ProductId = cartItemEntity.ProductId,
             Quantity = cartItemEntity.Quantity,
-            UserCart = cartItemEntity.UserCartEntity?.MapToPorts(),
             Version = cartItemEntity.Version
         };
 }

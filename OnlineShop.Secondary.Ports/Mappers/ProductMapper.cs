@@ -21,8 +21,6 @@ public static class ProductMapper
             AvailableQuantity = product.AvailableQuantity,
             CategoryId = product.CategoryId,
             Description = product.Description,
-            CartItemEntity = product.CartItem?.MapToDomain(),
-            CategoryEntity = product.Category?.MapToDomain(),
             Images = product.Images?.MapToDomain(),
             Version = product.Version
         };
