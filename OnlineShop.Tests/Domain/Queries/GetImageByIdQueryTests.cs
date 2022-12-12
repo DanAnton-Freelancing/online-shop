@@ -18,14 +18,14 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class GetImageByIdQueryTests : BaseQueryTests
 {
-    private ImageDb _imageDb;
+    private Image _image;
     private GetImageByIdQuery.GetImageByIdQueryHandler _getImageByIdQueryHandler;
 
     [TestInitialize]
     public override void Initialize()
     {
         base.Initialize();
-        _imageDb = ImageFactory.Create().ToEntity();
+        _image = ImageFactory.Create().ToEntity();
         _getImageByIdQueryHandler = new GetImageByIdQuery.GetImageByIdQueryHandler(ReaderRepositoryMock.Object);
 
     }
@@ -36,20 +36,20 @@ public class GetImageByIdQueryTests : BaseQueryTests
         //Arrange
         var imageQuery = new GetImageByIdQuery
         {
-            ImageId = _imageDb.Id.GetValueOrDefault()
+            ImageId = _image.Id.GetValueOrDefault()
         };
 
-        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<ImageDb, bool>>>(),
-                CancellationToken.None, It.IsAny<Func<IQueryable<ImageDb>, IOrderedQueryable<ImageDb>>>(),
-                It.IsAny<Func<IQueryable<ImageDb>, IIncludableQueryable<ImageDb, object>>>()))
-            .ReturnsAsync(Result.Ok(_imageDb));
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Image, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Image>, IOrderedQueryable<Image>>>(),
+                It.IsAny<Func<IQueryable<Image>, IIncludableQueryable<Image, object>>>()))
+            .ReturnsAsync(Result.Ok(_image));
 
         //Act
         var result = await _getImageByIdQueryHandler.Handle(imageQuery, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<ImageDb>.AreEntriesEqual(result.Data, _imageDb));
-        Assert.AreEqual(imageQuery.ImageId, _imageDb.Id.GetValueOrDefault());
+        Assert.IsTrue(EntitiesAssertionsUtils<Image>.AreEntriesEqual(result.Data, _image));
+        Assert.AreEqual(imageQuery.ImageId, _image.Id.GetValueOrDefault());
 
     }
 }

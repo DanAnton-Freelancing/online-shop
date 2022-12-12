@@ -29,8 +29,8 @@ public class AddItemToCartCommand : IAddItemToCartCommand
             _writerRepository = writerRepository;
         }
 
-        public Task<Result> Handle(AddItemToCartCommand request, CancellationToken cancellationToken) 
-            =>  _writerRepository.GetOneAsync<Product>(p => p.Id == request.CartItemEntity.ProductId,
+        public async Task<Result> Handle(AddItemToCartCommand request, CancellationToken cancellationToken) 
+            => await _writerRepository.GetOneAsync<Product>(p => p.Id == request.CartItemEntity.ProductId,
                     cancellationToken)
                 .MapAsync(p => p.MapToDomain())
                 .PipeAsync(i => i.IsAvailable())

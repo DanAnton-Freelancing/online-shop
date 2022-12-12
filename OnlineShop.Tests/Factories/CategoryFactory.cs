@@ -7,30 +7,30 @@ namespace OnlineShop.Tests.Factories;
 
 public static class CategoryFactory
 {
-    public static List<secondaryPorts.CategoryDb> Create()
+    public static List<secondaryPorts.Category> Create()
         => new()
         {
-            new secondaryPorts.CategoryDb
+            new secondaryPorts.Category
             {
                 Name = "Category1"
             },
-            new secondaryPorts.CategoryDb
+            new secondaryPorts.Category
             {
                 Name = "Category2"
             },
-            new secondaryPorts.CategoryDb
+            new secondaryPorts.Category
             {
                 Name = "Category3"
             }
         };
 
-    public static secondaryPorts.CategoryDb ToEntity(this secondaryPorts.CategoryDb categoryDb)
+    public static secondaryPorts.Category ToEntity(this secondaryPorts.Category Category)
     {
-        categoryDb.Id = Guid.NewGuid();
-        return categoryDb;
+        Category.Id = Guid.NewGuid();
+        return Category;
     }
 
-    public static secondaryPorts.CategoryDb CreateUpsert()
+    public static secondaryPorts.Category CreateUpsert()
         => new()
         {
             Name = "NewCategory"

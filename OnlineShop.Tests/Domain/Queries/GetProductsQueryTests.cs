@@ -18,7 +18,7 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class GetProductsQueryTests: BaseQueryTests
 {
-    private List<ProductDb> _products;
+    private List<Product> _products;
     private GetProductsQuery.GetProductsQueryHandler _getProductsQueryHandler;
 
     [TestInitialize]
@@ -35,15 +35,15 @@ public class GetProductsQueryTests: BaseQueryTests
     {
         //Arrange
         ReaderRepositoryMock.Setup(uc => uc.GetAsync(CancellationToken.None,
-                It.IsAny<Expression<Func<ProductDb, bool>>>(),It.IsAny<Func<IQueryable<ProductDb>, IOrderedQueryable<ProductDb>>>(),
-                It.IsAny<Func<IQueryable<ProductDb>, IIncludableQueryable<ProductDb, object>>>()))
+                It.IsAny<Expression<Func<Product, bool>>>(),It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
             .ReturnsAsync(Result.Ok(_products));
 
         //Act
         var result = await _getProductsQueryHandler.Handle(new GetProductsQuery(), CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<ProductDb>.AreListsEqual(result.Data, _products));
+        Assert.IsTrue(EntitiesAssertionsUtils<Product>.AreListsEqual(result.Data, _products));
 
     }
 }

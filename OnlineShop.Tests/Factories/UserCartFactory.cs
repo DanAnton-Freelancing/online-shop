@@ -7,16 +7,16 @@ namespace OnlineShop.Tests.Factories;
 
 public static class UserCartFactory
 {
-    public static secondaryPorts.CartItemDb CreateCartItem(secondaryPorts.UserCartDb userCartDb)
+    public static secondaryPorts.CartItem CreateCartItem(secondaryPorts.UserCart userCart)
     {
         var product = ProductFactory.Create().FirstOrDefault().ToEntity();
-        var cartItem = new secondaryPorts.CartItemDb
+        var cartItem = new secondaryPorts.CartItem
         {
             Price = 20,
             Quantity = 1,
-            UserCartDb = userCartDb,
-            UserCartId = userCartDb?.Id ?? Guid.Empty,
-            ProductDb = product,
+            UserCart = userCart,
+            UserCartId = userCart?.Id ?? Guid.Empty,
+            Product = product,
             ProductId = product.Id.GetValueOrDefault()
         };
         return cartItem;

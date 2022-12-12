@@ -15,7 +15,7 @@ public static class ImageMapper
         => new()
         {
             Id = imageDb.Id,
-            ProductEntity = imageDb.Product.MapToDomain(),
+            ProductEntity = imageDb.Product?.MapToDomain(),
             ProductId = imageDb.ProductId,
             Key = imageDb.Key,
             Version = imageDb.Version
@@ -30,7 +30,7 @@ public static class ImageMapper
         => new()
         {
             Id = imageEntity.Id,
-            Product = imageEntity.ProductEntity.MapToPorts(),
+            Product = imageEntity.ProductEntity?.MapToPorts(),
             ProductId = imageEntity.ProductId,
             Key = imageEntity.Key,
             Version = imageEntity.Version

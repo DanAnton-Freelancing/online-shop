@@ -49,8 +49,8 @@ public static class UserFactory
     public static void ToEntity(this primaryPorts.UserCartModel userCartModel, Guid id)
         => userCartModel.Id = id;
 
-    public static void ToEntity(this UserCart userCartDb)
-        => userCartDb.Id = Guid.NewGuid();
+    public static void ToEntity(this UserCart userCart)
+        => userCart.Id = Guid.NewGuid();
 
     public static primaryPorts.RegisterUserModel CreateRegisterUser()
         => new()

@@ -10,7 +10,7 @@ public static class UserCartMapper
         {
             Id = userCart.Id,
             UserId = userCart.UserId,
-            CartItems = userCart.CartItems.MapToDomain(),
+            CartItems = userCart.CartItems?.MapToDomain(),
             Version = userCart.Version
         };
 
@@ -19,7 +19,7 @@ public static class UserCartMapper
         {
             Id = userCartEntity.Id,
             UserId = userCartEntity.UserId,
-            CartItems = userCartEntity.CartItems.MapToPorts(),
+            CartItems = userCartEntity.CartItems?.MapToPorts(),
             Version = userCartEntity.Version
         };
 }

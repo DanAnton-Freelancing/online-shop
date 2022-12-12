@@ -4,9 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using OnlineShop.Domain.Aggregate;
 using OnlineShop.Primary.Adapters.Implementation;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Cart;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Queries;
+using OnlineShop.Secondary.Ports.Mappers;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Shared.Ports.Resources;
 using OnlineShop.Tests.Extensions;
@@ -19,7 +21,7 @@ namespace OnlineShop.Tests.Primary.Adapters;
 [TestClass]
 public class UsersCartAdapterTests : BaseTests
 {
-    private secondaryPorts.UserCartDb _userCartDb;
+    private secondaryPorts.UserCart _userCart;
     private UserCartAdapter _userCartAdapter;
     private primaryPorts.UserCartModel _userCartModelModel;
 
@@ -28,13 +30,13 @@ public class UsersCartAdapterTests : BaseTests
     {
         base.Initialize();
         _userCartAdapter = new UserCartAdapter(MediatorMock.Object);
-        _userCartDb = UserFactory.CreateUserCart();
+        _userCart = UserFactory.CreateUserCart();
         _userCartModelModel = UserFactory.CreateUserDetails();
-        _userCartDb.ToEntity();
-        _userCartModelModel.ToEntity(_userCartDb.Id.GetValueOrDefault());
+        _userCart.ToEntity();
+        _userCartModelModel.ToEntity(_userCart.Id.GetValueOrDefault());
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IGetUserCartQuery>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_userCartDb));
+            .ReturnsAsync(Result.Ok(_userCart.MapToDomain()));
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IAddItemToCartCommand>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok());
@@ -48,7 +50,7 @@ public class UsersCartAdapterTests : BaseTests
     public async Task GivenUserId_WhenGetWithDetailsAsync_ThenShouldReturnUserWithDetails()
     {
         //Act
-        var actualResult = await _userCartAdapter.GetWithDetailsAsync(_userCartDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var actualResult = await _userCartAdapter.GetWithDetailsAsync(_userCart.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
         Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserCartModel>.AreEntriesEqual(_userCartModelModel,
@@ -71,8 +73,8 @@ public class UsersCartAdapterTests : BaseTests
     public async Task GivenInvalidUserId_WhenGetWithDetails_ThenShouldReturnError()
     {
         //Arrange
-        MediatorMock.Setup(m => m.Send(It.IsAny<IGetUserCartQuery>(),CancellationToken.None))
-            .ReturnsAsync(Result.Error<secondaryPorts.UserCartDb>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
+        MediatorMock.Setup(m => m.Send(It.IsAny<IGetUserCartQuery>(), CancellationToken.None))
+            .ReturnsAsync(Result.Error<UserCartEntity>(HttpStatusCode.NotFound, "[NotFound]", ErrorMessages.NotFound));
         //Act
         var actualResult = await _userCartAdapter.GetWithDetailsAsync(Guid.NewGuid(), CancellationToken.None);
 
@@ -90,7 +92,7 @@ public class UsersCartAdapterTests : BaseTests
         var cartItem = UserCartFactory.CreateUpsertCartItem();
            
         //Act
-        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCartDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCart.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
         Assert.IsTrue(actualResult.Success);
@@ -100,11 +102,11 @@ public class UsersCartAdapterTests : BaseTests
     public async Task GivenCartItemWithNoUserCart_WhenAddItemAsync_ThenShouldReturnOk()
     {
         //Arrange
-        _userCartDb = null;
+        _userCart = null;
         var cartItem = UserCartFactory.CreateUpsertCartItem();
 
         //Act
-        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCartDb?.Id ?? Guid.Empty, CancellationToken.None);
+        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCart?.Id ?? Guid.Empty, CancellationToken.None);
 
         //Assert
         Assert.IsTrue(actualResult.Success);
@@ -118,7 +120,7 @@ public class UsersCartAdapterTests : BaseTests
         cartItem.ProductId = Guid.Empty;
 
         //Act
-        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCartDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCart.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
         Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserModel>.IsCorrectError(HttpStatusCode.BadRequest,
@@ -135,7 +137,7 @@ public class UsersCartAdapterTests : BaseTests
         cartItem.Quantity = -1;
 
         //Act
-        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCartDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var actualResult = await _userCartAdapter.AddItemAsync(cartItem, _userCart.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
         Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserModel>.IsCorrectError(HttpStatusCode.BadRequest,
@@ -148,7 +150,7 @@ public class UsersCartAdapterTests : BaseTests
     public async Task GivenInvalidCartItem_WhenAddItemAsync_ThenShouldReturnError()
     {
         //Act
-        var actualResult = await _userCartAdapter.AddItemAsync(null, _userCartDb.Id.GetValueOrDefault(),CancellationToken.None);
+        var actualResult = await _userCartAdapter.AddItemAsync(null, _userCart.Id.GetValueOrDefault(),CancellationToken.None);
 
         //Assert
         Assert.IsTrue(ModelAssertionsUtils<primaryPorts.UserModel>.IsCorrectError(HttpStatusCode.BadRequest,

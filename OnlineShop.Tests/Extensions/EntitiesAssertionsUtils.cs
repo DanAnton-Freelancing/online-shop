@@ -6,9 +6,10 @@ using OnlineShop.Secondary.Ports.DataContracts;
 namespace OnlineShop.Tests.Extensions;
 
 public static class EntitiesAssertionsUtils<T>
-    where T : EditableDbEntity
+    where T : Editable
 {
-    public static bool AreListsEqual(List<T> list1,
+
+public static bool AreListsEqual(List<T> list1,
         List<T> list2)
         => !list1.Select(l1 => l1.Id).Except(list2.Select(l2 => l2.Id)).Any();
 

@@ -7,18 +7,18 @@ namespace OnlineShop.Tests.Factories;
 
 public static class ProductFactory
 {
-    public static List<ProductDb> Create()
+    public static List<Product> Create()
         => new()
         {
-            new ProductDb
+            new Product
             {
                 Name = "Product1",
                 Code = "RandomCode1",
                 Price = 10,
                 AvailableQuantity = 20,
-                CategoryDb = CategoryFactory.Create()[0].ToEntity(),
+                Category = CategoryFactory.Create()[0].ToEntity(),
                 CategoryId = CategoryFactory.Create()[0].ToEntity().Id.GetValueOrDefault(),
-                Images = new List<ImageDb>()
+                Images = new List<Image>()
                 {
                     new()
                     {
@@ -27,27 +27,27 @@ public static class ProductFactory
                 }
             },
 
-            new ProductDb
+            new Product
             {
                 Name = "Product2",
                 Code = "RandomCode2",
                 Price = 23,
                 AvailableQuantity = 11,
-                CategoryDb = CategoryFactory.Create()[1].ToEntity(),
+                Category = CategoryFactory.Create()[1].ToEntity(),
                 CategoryId = CategoryFactory.Create()[1].ToEntity().Id.GetValueOrDefault()
             },
-            new ProductDb
+            new Product
             {
                 Name = "Product3",
                 Code = "RandomCode3",
                 Price = 30,
                 AvailableQuantity = 30,
-                CategoryDb = CategoryFactory.Create()[2].ToEntity(),
+                Category = CategoryFactory.Create()[2].ToEntity(),
                 CategoryId = CategoryFactory.Create()[2].ToEntity().Id.GetValueOrDefault()
             }
         };
 
-    public static ProductDb CreateUpsert()
+    public static Product CreateUpsert()
         => new()
         {
             Name = "NewProduct",
@@ -92,9 +92,9 @@ public static class ProductFactory
             }
         };
 
-    public static ProductDb ToEntity(this ProductDb productDb)
+    public static Product ToEntity(this Product product)
     {
-        productDb.Id = Guid.NewGuid();
-        return productDb;
+        product.Id = Guid.NewGuid();
+        return product;
     }
 }

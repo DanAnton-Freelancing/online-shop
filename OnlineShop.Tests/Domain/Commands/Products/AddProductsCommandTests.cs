@@ -11,7 +11,7 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Commands.Products;
 
 [TestClass]
-public class AddProductsCommandTests : BaseCommandTests<ProductDb>
+public class AddProductsCommandTests : BaseCommandTests<Product>
 {
     private AddProductsCommand.AddProductsCommandHandler _addProductsCommandHandler;
 
@@ -30,10 +30,10 @@ public class AddProductsCommandTests : BaseCommandTests<ProductDb>
         //Arrange
         var productIds = Entities.Select(l => l.Id.GetValueOrDefault()).First();
 
-        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<ProductDb>(),CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<Product>(),CancellationToken.None))
             .ReturnsAsync(Result.Ok(Entities.First()));
 
-        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<ProductDb>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(productIds));
 
         //Act

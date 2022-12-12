@@ -14,10 +14,10 @@ using OnlineShop.Tests.Factories;
 namespace OnlineShop.Tests.Domain.Commands.Products;
 
 [TestClass]
-public class UpdateProductCommandTests : BaseCommandTests<ProductDb>
+public class UpdateProductCommandTests : BaseCommandTests<Product>
 {
 
-    private ProductDb _firstProductDb;
+    private Product _firstProduct;
     private UpdateProductCommand.UpdateProductCommandHandler _updateProductsCommandHandler;
 
     [TestInitialize]
@@ -26,7 +26,7 @@ public class UpdateProductCommandTests : BaseCommandTests<ProductDb>
         base.Initialize();
         _updateProductsCommandHandler = new UpdateProductCommand.UpdateProductCommandHandler(WriterRepositoryMock.Object);
         Entities = ProductFactory.Create();
-        _firstProductDb = Entities.First().ToEntity();
+        _firstProduct = Entities.First().ToEntity();
     }
 
     [TestMethod]
@@ -34,25 +34,25 @@ public class UpdateProductCommandTests : BaseCommandTests<ProductDb>
     {
         //Arrange
             
-        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<ProductDb>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_firstProductDb));
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<Product>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_firstProduct));
 
-        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<ProductDb>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_firstProductDb.Id.GetValueOrDefault()));
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<Product>(), CancellationToken.None))
+            .ReturnsAsync(Result.Ok(_firstProduct.Id.GetValueOrDefault()));
 
-        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<ProductDb, bool>>>(),
-                CancellationToken.None, It.IsAny<Func<IQueryable<ProductDb>, IOrderedQueryable<ProductDb>>>(),
-                It.IsAny<Func<IQueryable<ProductDb>, IIncludableQueryable<ProductDb, object>>>()))
-            .ReturnsAsync(Result.Ok(_firstProductDb));
+        WriterRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
+            .ReturnsAsync(Result.Ok(_firstProduct));
         
         //Act
         var result = await _updateProductsCommandHandler.Handle(new UpdateProductCommand
         {
-            Data = _firstProductDb,
-            Id = _firstProductDb.Id.GetValueOrDefault()
+            Data = _firstProduct,
+            Id = _firstProduct.Id.GetValueOrDefault()
         }, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(_firstProductDb.Id, result.Data);
+        Assert.AreEqual(_firstProduct.Id, result.Data);
     }
 }

@@ -3,7 +3,7 @@ using OnlineShop.Secondary.Ports.DataContracts;
 
 namespace OnlineShop.Tests.TestDouble
 {
-    public class FakeDbEntity : EditableDbEntity
+    public class FakeDbEntity : Editable
     {
         public string Name { get; set; }
         public virtual FakeDbEntityChild Child { get; set; }

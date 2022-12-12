@@ -12,7 +12,6 @@ using primaryPorts = OnlineShop.Primary.Ports.DataContracts;
 using System.Threading.Tasks;
 using System.Threading;
 using Amazon.S3;
-using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Products;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Queries;
 
 namespace OnlineShop.Tests.Primary.Adapters;
@@ -20,7 +19,7 @@ namespace OnlineShop.Tests.Primary.Adapters;
 [TestClass]
 public class ImagesAdapterTests : BaseTests
 {
-    private secondaryPorts.ImageDb _imageDb;
+    private secondaryPorts.Image _image;
     private ImagesAdapter _imagesAdapter;
     private Mock<IAmazonS3> _s3ClientMock;
 
@@ -29,7 +28,7 @@ public class ImagesAdapterTests : BaseTests
     {
         base.Initialize();
         _s3ClientMock = new Mock<IAmazonS3>();
-        _imageDb = ImageFactory.Create();
+        _image = ImageFactory.Create();
         _imagesAdapter = new ImagesAdapter(MediatorMock.Object, _s3ClientMock.Object);
     }
 
@@ -40,7 +39,7 @@ public class ImagesAdapterTests : BaseTests
         var s3Image = ImageFactory.S3Object();
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IGetImageByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(_imageDb));
+            .ReturnsAsync(Result.Ok(_image));
 
         _s3ClientMock.Setup(m => m.DoesS3BucketExistAsync(It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -49,10 +48,10 @@ public class ImagesAdapterTests : BaseTests
             .ReturnsAsync(s3Image);
 
         //Act
-        var result = await _imagesAdapter.Get(_imageDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _imagesAdapter.Get(_image.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.ImageModel>.AreEntriesEqual(result.Data, _imageDb.MapToPrimary(s3Image)));
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.ImageModel>.AreEntriesEqual(result.Data, _image.MapToPrimary(s3Image)));
     }
 
     [TestMethod]
@@ -62,7 +61,7 @@ public class ImagesAdapterTests : BaseTests
         var s3Image = ImageFactory.S3Object();
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IGetImageByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(_imageDb));
+            .ReturnsAsync(Result.Ok(_image));
 
         _s3ClientMock.Setup(m => m.DoesS3BucketExistAsync(It.IsAny<string>()))
             .ReturnsAsync(false);
@@ -71,7 +70,7 @@ public class ImagesAdapterTests : BaseTests
             .ReturnsAsync(s3Image);
 
         //Act
-        var result = await _imagesAdapter.Get(_imageDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _imagesAdapter.Get(_image.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
         Assert.IsTrue(ModelAssertionsUtils<primaryPorts.ImageModel>.AreEntriesEqual(result.Data, new primaryPorts.ImageModel()));

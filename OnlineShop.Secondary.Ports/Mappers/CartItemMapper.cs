@@ -19,7 +19,6 @@ public static class CartItemMapper
             ProductEntity = cartItemDb.Product?.MapToDomain(),
             ProductId = cartItemDb.ProductId,
             Quantity = cartItemDb.Quantity,
-            UserCartEntity = cartItemDb.UserCart?.MapToDomain(),
             Version = cartItemDb.Version
         };
 

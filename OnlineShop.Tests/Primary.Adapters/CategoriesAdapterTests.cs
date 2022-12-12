@@ -8,6 +8,7 @@ using OnlineShop.Primary.Adapters.Implementation;
 using OnlineShop.Primary.Adapters.Mappers;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Commands.Categories;
 using OnlineShop.Primary.Ports.OperationContracts.CQRS.Queries;
+using OnlineShop.Secondary.Ports.Mappers;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Extensions;
 using OnlineShop.Tests.Factories;
@@ -19,9 +20,9 @@ namespace OnlineShop.Tests.Primary.Adapters;
 [TestClass]
 public class CategoriesAdapterTests : BaseTests
 {
-    private List<secondaryPorts.CategoryDb> _categories;
+    private List<secondaryPorts.Category> _categories;
     private CategoriesAdapter _categoriesAdapter;
-    private secondaryPorts.CategoryDb _firstCategoryDb;
+    private secondaryPorts.Category _firstCategory;
 
     [TestInitialize]
     public override void Initialize()
@@ -29,21 +30,22 @@ public class CategoriesAdapterTests : BaseTests
         base.Initialize();
         _categories = CategoryFactory.Create();
         _categoriesAdapter = new CategoriesAdapter(MediatorMock.Object);
-        _firstCategoryDb = _categories.First().ToEntity();
+        _firstCategory = _categories.First().ToEntity();
     }
 
     [TestMethod]
     public async Task WhenGetCategoriesAsync_ThenShouldReturnCategories()
     {
         //Arrange
+        var domainEntities = _categories.MapToDomain();
         MediatorMock.Setup(m => m.Send(It.IsAny<IGetCategoriesQuery>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_categories));
+            .ReturnsAsync(Result.Ok(domainEntities));
 
         //Act
         var result = await _categoriesAdapter.GetAllAsync(CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.CategoryModel>.AreListsEqual(result.Data, _categories.MapToPrimary()));
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.CategoryModel>.AreListsEqual(result.Data, domainEntities.MapToPrimary()));
     }
 
     [TestMethod]
@@ -71,13 +73,13 @@ public class CategoriesAdapterTests : BaseTests
         var upsertCategory = CategoryFactory.CreateUpsertModel();
 
         MediatorMock.Setup(m => m.Send(It.IsAny<IUpdateCategoryCommand>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_firstCategoryDb.Id.GetValueOrDefault()));
+            .ReturnsAsync(Result.Ok(_firstCategory.Id.GetValueOrDefault()));
 
         //Act
-        var result = await _categoriesAdapter.UpdateAsync(_firstCategoryDb.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
+        var result = await _categoriesAdapter.UpdateAsync(_firstCategory.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(_firstCategoryDb.Id.GetValueOrDefault(), result.Data);
+        Assert.AreEqual(_firstCategory.Id.GetValueOrDefault(), result.Data);
     }
 
     [TestMethod]
@@ -89,7 +91,7 @@ public class CategoriesAdapterTests : BaseTests
             .ReturnsAsync(Result.Ok());
 
         //Act
-        var result = await _categoriesAdapter.DeleteAsync(_firstCategoryDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _categoriesAdapter.DeleteAsync(_firstCategory.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
         Assert.IsTrue(result.Success);

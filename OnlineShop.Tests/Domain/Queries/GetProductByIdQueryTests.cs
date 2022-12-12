@@ -18,7 +18,7 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class GetProductByIdQueryTests: BaseQueryTests
 {
-    private List<ProductDb> _products;
+    private List<Product> _products;
     private GetProductByIdQuery.GetProductByIdQueryHandler _getProductByIdQueryHandler;
 
     [TestInitialize]
@@ -38,16 +38,16 @@ public class GetProductByIdQueryTests: BaseQueryTests
         {
             Id = _products.First().Id.GetValueOrDefault()
         };
-        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<ProductDb, bool>>>(),
-                CancellationToken.None, It.IsAny<Func<IQueryable<ProductDb>, IOrderedQueryable<ProductDb>>>(),
-                It.IsAny<Func<IQueryable<ProductDb>, IIncludableQueryable<ProductDb, object>>>()))
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<Product, bool>>>(),
+                CancellationToken.None, It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                It.IsAny<Func<IQueryable<Product>, IIncludableQueryable<Product, object>>>()))
             .ReturnsAsync(Result.Ok(_products.First()));
 
         //Act
         var result = await _getProductByIdQueryHandler.Handle(query, CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<ProductDb>.AreEntriesEqual(result.Data, _products.First()));
+        Assert.IsTrue(EntitiesAssertionsUtils<Product>.AreEntriesEqual(result.Data, _products.First()));
         Assert.AreEqual(query.Id, _products.First().Id.GetValueOrDefault());
 
     }

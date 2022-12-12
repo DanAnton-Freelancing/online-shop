@@ -19,7 +19,7 @@ namespace OnlineShop.Tests.Domain.Queries;
 [TestClass]
 public class LoginQueryTests : BaseQueryTests
 {
-    private UserD _userDb;
+    private User _user;
 
     private LoginQuery.LoginQueryHandler _loginQueryHandler;
 
@@ -28,7 +28,7 @@ public class LoginQueryTests : BaseQueryTests
     {
         base.Initialize();
 
-        _userDb = UserFactory.Create();
+        _user = UserFactory.Create();
         _loginQueryHandler = new LoginQuery.LoginQueryHandler(ReaderRepositoryMock.Object, UserFactory.GetSecret());
 
     }
@@ -37,18 +37,18 @@ public class LoginQueryTests : BaseQueryTests
     public async Task GivenUsernameAndPassword_WhenLoginAsync_ThenReturnResultOk()
     {
         //Arrange
-        var userEntity = _userDb.ToEntity();
-        var userPassword = _userDb.Password;
+        var userEntity = _user.ToEntity();
+        var userPassword = _user.Password;
 
         userEntity.AddSalt();
         userEntity.AddPasswordHash();
 
-        var query = new LoginQuery { Username = _userDb.Username, Password = userPassword };
+        var query = new LoginQuery { Username = _user.Username, Password = userPassword };
 
-        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<UserDb, bool>>>(), 
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(), 
                 CancellationToken.None,
-                It.IsAny<Func<IQueryable<UserDb>, IOrderedQueryable<UserDb>>>(),
-                It.IsAny<Func<IQueryable<UserDb>, IIncludableQueryable<UserDb, object>>>()))
+                It.IsAny<Func<IQueryable<User>, IOrderedQueryable<User>>>(),
+                It.IsAny<Func<IQueryable<User>, IIncludableQueryable<User, object>>>()))
             .ReturnsAsync(Result.Ok(userEntity));
 
         //Act
@@ -65,24 +65,24 @@ public class LoginQueryTests : BaseQueryTests
     public async Task GivenWrongUsernameAndCorrectPassword_WhenLoginAsync_ThenReturnResultNotFound()
     {
         //Arrange
-        var userEntity = _userDb.ToEntity();
-        var userPassword = _userDb.Password;
+        var userEntity = _user.ToEntity();
+        var userPassword = _user.Password;
 
         userEntity.AddSalt();
         userEntity.AddPasswordHash();
-        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<UserDb, bool>>>(),
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 CancellationToken.None,
-                It.IsAny<Func<IQueryable<UserDb>, IOrderedQueryable<UserDb>>>(),
-                It.IsAny<Func<IQueryable<UserDb>, IIncludableQueryable<UserDb, object>>>()))
-            .ReturnsAsync(Result.Error<UserDb>(HttpStatusCode.NotFound, "[NotFound]",
+                It.IsAny<Func<IQueryable<User>, IOrderedQueryable<User>>>(),
+                It.IsAny<Func<IQueryable<User>, IIncludableQueryable<User, object>>>()))
+            .ReturnsAsync(Result.Error<User>(HttpStatusCode.NotFound, "[NotFound]",
                 ErrorMessages.NotFound));
 
         //Act
-        var actualResult = await _loginQueryHandler.Handle(new LoginQuery { Username = _userDb.Username, Password = userPassword },
+        var actualResult = await _loginQueryHandler.Handle(new LoginQuery { Username = _user.Username, Password = userPassword },
             CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<UserDb>.IsCorrectError(HttpStatusCode.NotFound,
+        Assert.IsTrue(EntitiesAssertionsUtils<User>.IsCorrectError(HttpStatusCode.NotFound,
             "[NotFound]",
             actualResult.HttpStatusCode,
             actualResult.ErrorMessage));
@@ -92,24 +92,24 @@ public class LoginQueryTests : BaseQueryTests
     public async Task GivenCorrectUsernameAndWrongPassword_WhenLoginAsync_ThenReturnResultNotFound()
     {
         //Arrange
-        var userEntity = _userDb.ToEntity();
+        var userEntity = _user.ToEntity();
         var userPassword = Guid.NewGuid().ToString();
 
         userEntity.AddSalt();
         userEntity.AddPasswordHash();
 
-        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<UserDb, bool>>>(),
+        ReaderRepositoryMock.Setup(uc => uc.GetOneAsync(It.IsAny<Expression<Func<User, bool>>>(),
                 CancellationToken.None,
-                It.IsAny<Func<IQueryable<UserDb>, IOrderedQueryable<UserDb>>>(),
-                It.IsAny<Func<IQueryable<UserDb>, IIncludableQueryable<UserDb, object>>>()))
+                It.IsAny<Func<IQueryable<User>, IOrderedQueryable<User>>>(),
+                It.IsAny<Func<IQueryable<User>, IIncludableQueryable<User, object>>>()))
             .ReturnsAsync(Result.Ok(userEntity));
 
         //Act
-        var actualResult = await _loginQueryHandler.Handle(new LoginQuery { Username = _userDb.Username, Password = userPassword },
+        var actualResult = await _loginQueryHandler.Handle(new LoginQuery { Username = _user.Username, Password = userPassword },
             CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(EntitiesAssertionsUtils<UserDb>.IsCorrectError(HttpStatusCode.NotFound,
+        Assert.IsTrue(EntitiesAssertionsUtils<User>.IsCorrectError(HttpStatusCode.NotFound,
             "[NotFound]",
             actualResult.HttpStatusCode,
             actualResult.ErrorMessage));

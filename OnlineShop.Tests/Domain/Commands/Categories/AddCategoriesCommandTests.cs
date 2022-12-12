@@ -6,13 +6,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OnlineShop.Application.Implementations.Commands.Categories;
 using OnlineShop.Secondary.Ports.DataContracts;
+using OnlineShop.Secondary.Ports.Mappers;
 using OnlineShop.Shared.Ports.DataContracts;
 using OnlineShop.Tests.Factories;
 
 namespace OnlineShop.Tests.Domain.Commands.Categories;
 
 [TestClass]
-public class AddCategoriesCommandTests : BaseCommandTests<CategoryDb>
+public class AddCategoriesCommandTests : BaseCommandTests<Category>
 {
     private AddCategoriesCommand.AddCategoriesCommandHandler _addProductsCommandHandler;
 
@@ -31,17 +32,17 @@ public class AddCategoriesCommandTests : BaseCommandTests<CategoryDb>
         //Arrange
         var categoriesIds = Entities.Select(l => l.Id.GetValueOrDefault()).ToList();
 
-        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<List<CategoryDb>>(),CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.AddAsync(It.IsAny<List<Category>>(),CancellationToken.None))
             .ReturnsAsync(Result.Ok(Entities));
 
 
-        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<List<CategoryDb>>(), CancellationToken.None))
+        WriterRepositoryMock.Setup(ls => ls.SaveAsync(It.IsAny<List<Category>>(), CancellationToken.None))
             .ReturnsAsync(Result.Ok(categoriesIds));
 
         //Act
         var result = await _addProductsCommandHandler.Handle(new AddCategoriesCommand
         {
-            Data = Entities
+            Data = Entities.MapToDomain()
         }, CancellationToken.None);
 
         //Assert

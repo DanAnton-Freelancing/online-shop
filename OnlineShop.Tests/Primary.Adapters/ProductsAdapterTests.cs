@@ -20,8 +20,8 @@ namespace OnlineShop.Tests.Primary.Adapters;
 [TestClass]
 public class ProductsAdapterTests : BaseTests
 {
-    private secondaryPorts.ProductDb _firstProductDb;
-    private List<secondaryPorts.ProductDb> _products;
+    private secondaryPorts.Product _firstProduct;
+    private List<secondaryPorts.Product> _products;
     private ProductsAdapter _productsAdapter;
     private Mock<IAmazonS3> _s3ClientMock;
 
@@ -32,7 +32,7 @@ public class ProductsAdapterTests : BaseTests
         _s3ClientMock = new Mock<IAmazonS3>();
         _products = ProductFactory.Create();
         _productsAdapter = new ProductsAdapter(MediatorMock.Object, _s3ClientMock.Object);
-        _firstProductDb = _products.First().ToEntity();
+        _firstProduct = _products.First().ToEntity();
     }
 
     [TestMethod]
@@ -54,13 +54,13 @@ public class ProductsAdapterTests : BaseTests
     {
         //Arrange
         MediatorMock.Setup(m => m.Send(It.IsAny<IGetProductByIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Result.Ok(_firstProductDb));
+            .ReturnsAsync(Result.Ok(_firstProduct));
 
         //Act
-        var result = await _productsAdapter.GetById(_firstProductDb.Id.GetValueOrDefault(), CancellationToken.None);
+        var result = await _productsAdapter.GetById(_firstProduct.Id.GetValueOrDefault(), CancellationToken.None);
 
         //Assert
-        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.ProductModel>.AreEntriesEqual(result.Data, _firstProductDb.MapToPrimary()));
+        Assert.IsTrue(ModelAssertionsUtils<primaryPorts.ProductModel>.AreEntriesEqual(result.Data, _firstProduct.MapToPrimary()));
     }
     [TestMethod]
     public async Task GivenProducts_WhenInsertAsync_ThenShouldReturnIds()
@@ -87,13 +87,13 @@ public class ProductsAdapterTests : BaseTests
         var upsertCategory = ProductFactory.CreateUpsertModel();
 
         MediatorMock.Setup(ls => ls.Send(It.IsAny<IUpdateProductCommand>(), CancellationToken.None))
-            .ReturnsAsync(Result.Ok(_firstProductDb.Id.GetValueOrDefault()));
+            .ReturnsAsync(Result.Ok(_firstProduct.Id.GetValueOrDefault()));
 
         //Act
-        var result = await _productsAdapter.UpdateAsync(_firstProductDb.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
+        var result = await _productsAdapter.UpdateAsync(_firstProduct.Id.GetValueOrDefault(), upsertCategory, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(_firstProductDb.Id.GetValueOrDefault(), result.Data);
+        Assert.AreEqual(_firstProduct.Id.GetValueOrDefault(), result.Data);
     }
 
     [TestMethod]
@@ -105,7 +105,7 @@ public class ProductsAdapterTests : BaseTests
             .ReturnsAsync(Result.Ok());
 
         //Act
-        var result = await _productsAdapter.DeleteAsync(_firstProductDb.Id.GetValueOrDefault(),CancellationToken.None);
+        var result = await _productsAdapter.DeleteAsync(_firstProduct.Id.GetValueOrDefault(),CancellationToken.None);
 
         //Assert
         Assert.IsTrue(result.Success);
